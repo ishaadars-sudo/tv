@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,17 +9,17 @@
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: 'Poppins', 'Manjari', sans-serif;
-      background: radial-gradient(circle at top left, #0a2e2f 0%, #051617 55%, #020b0c 100%);
-      color: #f8fafc;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #fef3c7 100%);
+      color: #0f172a;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
       margin: 0;
       user-select: none;
     }
-    .ml { font-family: 'Manjari', sans-serif; }
     .en { font-family: 'Poppins', sans-serif; }
+    .ml { font-family: 'Manjari', sans-serif; }
     .arabic { font-family: 'Amiri', serif; }
 
     /* Slide Transitions */
@@ -27,9 +27,9 @@
       position: absolute;
       inset: 0;
       opacity: 0;
-      transform: translateY(18px) scale(0.985);
+      transform: translateY(16px) scale(0.985);
       pointer-events: none;
-      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
       display: flex;
       flex-direction: column;
     }
@@ -48,22 +48,21 @@
       animation: progressFill 15s linear infinite;
     }
 
-    /* Glass Cards */
-    .glass {
-      background: rgba(255, 255, 255, 0.055);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.11);
+    /* Bottom Malayalam News Ticker */
+    @keyframes tickerScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
     }
-    .glass-teal {
-      background: linear-gradient(135deg, rgba(15, 61, 62, 0.75) 0%, rgba(11, 46, 47, 0.55) 100%);
-      border: 1px solid rgba(45, 212, 191, 0.25);
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tickerScroll 36s linear infinite;
     }
-    .glass-gold {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 100%);
-      border: 1px solid rgba(251, 191, 36, 0.35);
+    .ticker-track:hover {
+      animation-play-state: paused;
     }
 
-    /* Smooth Pulse Dot */
+    /* Pulse Dot */
     @keyframes pulseRing {
       0% { transform: scale(0.85); opacity: 0.9; }
       70% { transform: scale(1.8); opacity: 0; }
@@ -78,15 +77,14 @@
       animation: pulseRing 1.8s infinite;
     }
 
-    /* Custom Thin Scrollbar if overflow occurs */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(15, 61, 62, 0.25); border-radius: 4px; }
   </style>
 </head>
-<body class="flex flex-col justify-between p-4 lg:p-6">
+<body class="flex flex-col justify-between p-3.5 lg:p-5">
 
   <!-- TOP HEADER BAR -->
-  <header class="flex items-center justify-between glass rounded-2xl px-5 py-3 shrink-0 z-20 shadow-lg">
+  <header class="flex items-center justify-between bg-gradient-to-r from-[#0f3d3e] via-[#134e4a] to-[#0f3d3e] text-white rounded-2xl px-5 py-3 shrink-0 z-20 shadow-xl border border-teal-700/40">
     <div class="flex items-center gap-4">
       <div id="tv-logo-box" class="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-md overflow-hidden shrink-0">
         <svg viewBox="0 0 100 120" class="w-full h-full">
@@ -97,25 +95,25 @@
       <div>
         <div class="flex items-center gap-2.5">
           <h1 class="en font-black text-xl lg:text-2xl tracking-tight text-white">ISHA-ATHUSSUNNA DAWA DARS</h1>
-          <span class="relative inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+          <span class="relative inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold">
             <span class="relative w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
-            <span id="sync-status" class="en">LIVE</span>
+            <span id="sync-status" class="en">SYNCING</span>
           </span>
         </div>
-        <p class="ml text-teal-200/90 text-sm font-bold mt-0.5">പുതുപ്പാടം • i-Con സ്മാർട്ട് ലൈവ് ഡിസ്പ്ലേ ബോർഡ്</p>
+        <p class="en text-teal-100/90 text-xs lg:text-sm font-semibold mt-0.5">Puthuppadam Ayikkarappadi • i-Con Live Academic & Campus Display</p>
       </div>
     </div>
 
-    <!-- Slide Indicators & Live 12-Hour Clock -->
-    <div class="flex items-center gap-6">
+    <!-- Slide Dots + Live 12-Hour Clock -->
+    <div class="flex items-center gap-5">
       <div class="hidden xl:flex items-center gap-2" id="slide-dots"></div>
 
-      <div class="text-right">
+      <div class="text-right bg-black/20 px-4 py-1.5 rounded-xl border border-white/10">
         <div id="tv-clock" class="en font-black text-2xl lg:text-3xl text-amber-300 tracking-wide leading-none">12:00:00 PM</div>
-        <div id="tv-date" class="ml text-xs lg:text-sm text-teal-100/80 font-bold mt-1">--</div>
+        <div id="tv-date" class="en text-xs text-teal-100 font-semibold mt-1">--</div>
       </div>
 
-      <button onclick="toggleFullScreen()" title="Fullscreen (F11)" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition border border-white/15">
+      <button onclick="toggleFullScreen()" title="Fullscreen (F11)" class="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white transition border border-white/20">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
         </svg>
@@ -126,15 +124,13 @@
   <!-- MAIN SLIDESHOW STAGE -->
   <main class="relative flex-1 my-3 overflow-hidden">
 
-    <!-- SLIDE 1: LIVE TIMETABLE (BATCH A - G ALL 7 CARDS) -->
+    <!-- SLIDE 1: LIVE TIMETABLE (BATCH A - G COLORFUL CARDS) -->
     <section id="slide-0" class="slide active">
       <div class="flex items-center justify-between mb-2.5 px-1">
-        <div>
-          <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200 flex items-center gap-2">
-            <span>🕒</span> <span>തത്സമയ ക്ലാസ്സ് ടൈംടേബിൾ (Batch A – Batch G)</span>
-          </h2>
-        </div>
-        <span id="tt-day-badge" class="en text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 border border-teal-400/30">TODAY</span>
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e] flex items-center gap-2">
+          <span>🕒</span> <span>Live Class Timetable & Next Subject (Batch A – Batch G)</span>
+        </h2>
+        <span id="tt-day-badge" class="en text-xs font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full bg-[#0f3d3e] text-white shadow-sm">TODAY</span>
       </div>
       <div id="batches-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1"></div>
     </section>
@@ -142,10 +138,10 @@
     <!-- SLIDE 2: 6 MONTHLY CHAMPIONS -->
     <section id="slide-1" class="slide">
       <div class="flex items-center justify-between mb-3 px-1">
-        <h2 class="ml text-xl lg:text-2xl font-bold text-amber-300 flex items-center gap-2">
-          <span>🎖️</span> <span>ഈ മാസത്തെ 6 പ്രതിമാസ അവാർഡ് ജേതാക്കൾ (Live Auto-Rank)</span>
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-amber-900 flex items-center gap-2">
+          <span>🎖️</span> <span>6 Monthly Champions (Live Auto-Rank)</span>
         </h2>
-        <span id="awards-month-badge" class="en text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">CURRENT MONTH</span>
+        <span id="awards-month-badge" class="en text-xs font-extrabold uppercase px-3.5 py-1 rounded-full bg-amber-500 text-slate-950 shadow-sm">CURRENT MONTH</span>
       </div>
       <div id="tv-awards-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 flex-1"></div>
     </section>
@@ -156,8 +152,8 @@
         <!-- Left 7 Cols: 4 Teams -->
         <div class="lg:col-span-7 flex flex-col">
           <div class="flex items-center justify-between mb-2.5 px-1">
-            <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200">🏆 4 ടീമുകളുടെ തത്സമയ പോയിന്റ് നില</h2>
-            <span class="ml text-xs font-bold text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">മത്സരങ്ങൾ + ക്ലബ്ബ് + അക്കാദമിക്</span>
+            <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e]">🏆 4 Teams Overall Standings</h2>
+            <span class="en text-xs font-bold text-teal-900 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">Comp + Club + Academic</span>
           </div>
           <div id="tv-teams-list" class="grid grid-cols-1 gap-3 flex-1"></div>
         </div>
@@ -165,8 +161,8 @@
         <!-- Right 5 Cols: Daily Quiz Weekly Champions -->
         <div class="lg:col-span-5 flex flex-col">
           <div class="flex items-center justify-between mb-2.5 px-1">
-            <h2 class="ml text-xl lg:text-2xl font-bold text-amber-300">📰 ഡെയിലി ക്വിസ് വിജയികൾ</h2>
-            <span class="en text-xs font-extrabold text-amber-200 bg-amber-500/20 px-2.5 py-1 rounded-full">THIS WEEK</span>
+            <h2 class="en text-lg lg:text-2xl font-extrabold text-indigo-950">📰 Daily Quiz Weekly Champions</h2>
+            <span class="en text-xs font-extrabold text-white bg-indigo-600 px-3 py-1 rounded-full shadow-sm">THIS WEEK</span>
           </div>
           <div id="tv-quiz-winners" class="grid grid-cols-1 gap-3 flex-1"></div>
         </div>
@@ -177,19 +173,19 @@
     <section id="slide-3" class="slide">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
         <!-- Pending Projects -->
-        <div class="glass rounded-2xl p-4 flex flex-col border border-rose-400/30">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
-            <h2 class="ml text-lg lg:text-xl font-bold text-rose-300">📌 പ്രോജക്ട് സമർപ്പിക്കാൻ ബാക്കിയുള്ളവർ</h2>
-            <span class="en text-xs font-bold bg-rose-500/20 text-rose-200 px-2.5 py-0.5 rounded-full">PENDING PROJECTS</span>
+        <div class="bg-white/95 rounded-2xl p-4 flex flex-col border-2 border-rose-200 shadow-lg">
+          <div class="flex items-center justify-between border-b border-rose-100 pb-2.5 mb-3">
+            <h2 class="en text-lg lg:text-xl font-extrabold text-rose-800">📌 Pending Weekly Projects</h2>
+            <span class="en text-xs font-extrabold bg-rose-600 text-white px-3 py-1 rounded-full">ACTION REQUIRED</span>
           </div>
           <div id="tv-pending-projects" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
         </div>
 
         <!-- Incomplete Notes -->
-        <div class="glass rounded-2xl p-4 flex flex-col border border-amber-400/30">
-          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
-            <h2 class="ml text-lg lg:text-xl font-bold text-amber-300">📝 നോട്ട് പൂർത്തിയാക്കാൻ ബാക്കിയുള്ളവർ</h2>
-            <span class="en text-xs font-bold bg-amber-500/20 text-amber-200 px-2.5 py-0.5 rounded-full">NOTE COMPLETION ALERT</span>
+        <div class="bg-white/95 rounded-2xl p-4 flex flex-col border-2 border-amber-200 shadow-lg">
+          <div class="flex items-center justify-between border-b border-amber-100 pb-2.5 mb-3">
+            <h2 class="en text-lg lg:text-xl font-extrabold text-amber-900">📝 Note Completion Alert</h2>
+            <span class="en text-xs font-extrabold bg-amber-500 text-slate-950 px-3 py-1 rounded-full">INCOMPLETE / PENDING</span>
           </div>
           <div id="tv-incomplete-notes" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
         </div>
@@ -199,30 +195,47 @@
     <!-- SLIDE 5: LATEST NOTICES & ANNOUNCEMENTS -->
     <section id="slide-4" class="slide">
       <div class="flex items-center justify-between mb-3 px-1">
-        <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200">📢 പ്രധാന അറിയിപ്പുകൾ (Notices & Announcements)</h2>
-        <span class="ml text-xs font-bold text-teal-200 bg-teal-500/20 px-3 py-1 rounded-full">ഉസ്താദുമാരുടെ ഡെസ്കിൽ നിന്ന്</span>
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e]">📢 Official Notices & Announcements</h2>
+        <span class="en text-xs font-bold text-white bg-[#0f3d3e] px-3.5 py-1 rounded-full shadow-sm">From Ustad Control Desk</span>
       </div>
       <div id="tv-notices-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"></div>
     </section>
 
   </main>
 
-  <!-- BOTTOM PROGRESS & STATUS BAR -->
-  <footer class="glass rounded-xl px-4 py-2 shrink-0 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-2 text-xs text-teal-100/80 ml font-bold shrink-0">
-      <span id="slide-title-footer">സ്ലൈഡ് 1 / 5 : തത്സമയ ടൈംടേബിൾ</span>
+  <!-- BOTTOM MALAYALAM NEWS TICKER & SLIDE PROGRESS -->
+  <footer class="bg-white/95 rounded-2xl shadow-lg border border-slate-200/80 overflow-hidden shrink-0">
+    <!-- Top thin progress bar -->
+    <div class="w-full h-1.5 bg-slate-200">
+      <div id="slide-progress" class="h-full bg-gradient-to-r from-teal-600 via-indigo-600 to-amber-500 progress-anim"></div>
     </div>
-    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-      <div id="slide-progress" class="h-full bg-gradient-to-r from-teal-400 to-amber-300 progress-anim"></div>
-    </div>
-    <div class="en text-[11px] text-slate-400 font-semibold shrink-0">
-      Auto-Sync: 60s • i-Con Smart TV
+
+    <div class="flex items-center justify-between">
+      <!-- Left Badge -->
+      <div class="bg-gradient-to-r from-rose-600 to-amber-600 text-white px-4 py-2.5 font-extrabold text-xs lg:text-sm shrink-0 flex items-center gap-2 z-10 shadow">
+        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+        <span class="ml font-bold">പ്രധാന അറിയിപ്പുകൾ</span>
+      </div>
+
+      <!-- Scrolling Malayalam Ticker -->
+      <div class="flex-1 overflow-hidden py-2 bg-slate-50">
+        <div id="ml-news-ticker" class="ticker-track ml font-bold text-sm lg:text-base text-slate-800">
+          <span class="mx-8">ഇശാഅത്തുസ്സുന്ന ദഅ്‌വ ദർസ് പുതുപ്പാടം • i-Con സ്മാർട്ട് ലൈവ് ഡിസ്പ്ലേ ബോർഡിലേക്ക് സ്വാഗതം!</span>
+          <span class="mx-8">•</span>
+          <span class="mx-8">വിവരങ്ങൾ Google Sheet-ൽ നിന്നും അപ്‌ഡേറ്റ് ചെയ്തുകൊണ്ടിരിക്കുന്നു...</span>
+        </div>
+      </div>
+
+      <!-- Right Slide Counter -->
+      <div id="slide-title-footer" class="hidden md:block bg-slate-900 text-amber-300 en text-xs font-bold px-4 py-2.5 shrink-0">
+        Slide 1 / 5 • Timetable
+      </div>
     </div>
   </footer>
 
   <script>
-    // ================= API ENDPOINTS (CONNECTED TO YOUR EXISTING SHEET) =================
-    const ICON_API_URL = localStorage.getItem('icon_api_url') || 'https://script.google.com/macros/s/AKfycbw5BMn8o3wGZniXr0EgZ1x-PbDdOUV6JAtmcWJdBumFsUDoZtmKH9xwfwqe-Vo1XG1g/exec';
+    // ================= DIRECT GOOGLE SHEET API ENDPOINTS =================
+    const ICON_API_URL = 'https://script.google.com/macros/s/AKfycbw5BMn8o3wGZniXr0EgZ1x-PbDdOUV6JAtmcWJdBumFsUDoZtmKH9xwfwqe-Vo1XG1g/exec';
     const QUIZ_API_URL = 'https://script.google.com/macros/s/AKfycbyUSKnyokpuCE8W9P4siZMUCT5h9LpcxtQGHtSxlrAx9TXW0sen3lgHXAGOE0E5QSudLg/exec';
 
     const FALLBACK_STUDENTS = [
@@ -353,16 +366,16 @@
     };
 
     const SLIDE_NAMES = [
-      "സ്ലൈഡ് 1 / 5 : തത്സമയ ക്ലാസ്സ് ടൈംടേബിൾ (Batch A – G)",
-      "സ്ലൈഡ് 2 / 5 : 6 പ്രതിമാസ അവാർഡ് ജേതാക്കൾ",
-      "സ്ലൈഡ് 3 / 5 : 4 ടീമുകളുടെ പോയിന്റ് നില & ക്വിസ് വിജയികൾ",
-      "സ്ലൈഡ് 4 / 5 : പ്രോജക്ട് & നോട്ട് പൂർത്തിയാക്കാൻ ബാക്കിയുള്ളവർ",
-      "സ്ലൈഡ് 5 / 5 : പ്രധാന അറിയിപ്പുകൾ (Notices)"
+      "Slide 1 / 5 • Live Timetable",
+      "Slide 2 / 5 • 6 Monthly Awards",
+      "Slide 3 / 5 • Teams & Quiz",
+      "Slide 4 / 5 • Projects & Notes",
+      "Slide 5 / 5 • Notices"
     ];
 
     let currentSlide = 0;
     const totalSlides = 5;
-    const SLIDE_DURATION = 15000; // 15 seconds per slide
+    const SLIDE_DURATION = 15000;
 
     // ================= 12-HOUR CLOCK & DATE =================
     function format12Hour(hhmm) {
@@ -387,16 +400,19 @@
         second: '2-digit',
         hour12: true
       });
-      const mlDays = ["ഞായർ", "തിങ്കൾ", "ചൊവ്വ", "ബുധൻ", "വ്യാഴം", "വെള്ളി", "ശനി"];
-      const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-      document.getElementById('tv-date').textContent = `${mlDays[now.getDay()]} • ${dateStr}`;
+      document.getElementById('tv-date').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
     }
 
     // ================= SLIDESHOW CONTROLLER =================
     function buildSlideDots() {
       const dotsEl = document.getElementById('slide-dots');
       dotsEl.innerHTML = Array.from({ length: totalSlides }).map((_, i) => `
-        <button onclick="goToSlide(${i})" class="h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-amber-300' : 'w-2.5 bg-white/25 hover:bg-white/50'}"></button>
+        <button onclick="goToSlide(${i})" class="h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-amber-300' : 'w-2.5 bg-white/30 hover:bg-white/60'}"></button>
       `).join('');
     }
 
@@ -407,7 +423,6 @@
       document.getElementById('slide-title-footer').textContent = SLIDE_NAMES[currentSlide];
       buildSlideDots();
 
-      // Restart progress bar animation cleanly
       const prog = document.getElementById('slide-progress');
       prog.classList.remove('progress-anim');
       void prog.offsetWidth;
@@ -419,24 +434,33 @@
       const statusEl = document.getElementById('sync-status');
       statusEl.textContent = 'SYNCING...';
       try {
-        const res = await fetch(`${ICON_API_URL}?action=getAll&t=${Date.now()}`);
-        const json = await res.json();
-        if (json.status === 'success' && json.data) {
-          if (json.data.config) STATE.config = { ...STATE.config, ...json.data.config };
-          STATE.dailyLogs = json.data.dailyLogs || [];
-          STATE.competitions = json.data.competitions || [];
-          STATE.clubPoints = json.data.clubPoints || [];
-          STATE.projects = json.data.projects || [];
-          STATE.evaluations = json.data.evaluations || [];
-          STATE.notices = json.data.notices || [];
+        const res = await fetch(`${ICON_API_URL}?action=getAll&t=${Date.now()}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const text = await res.text();
+        const json = JSON.parse(text);
+        if (json && (json.status === 'success' || json.data)) {
+          const payload = json.data || json;
+          if (payload.config) STATE.config = { ...STATE.config, ...payload.config };
+          if (Array.isArray(payload.dailyLogs)) STATE.dailyLogs = payload.dailyLogs;
+          if (Array.isArray(payload.competitions)) STATE.competitions = payload.competitions;
+          if (Array.isArray(payload.clubPoints)) STATE.clubPoints = payload.clubPoints;
+          if (Array.isArray(payload.projects)) STATE.projects = payload.projects;
+          if (Array.isArray(payload.evaluations)) STATE.evaluations = payload.evaluations;
+          if (Array.isArray(payload.notices)) STATE.notices = payload.notices;
           statusEl.textContent = 'LIVE SYNCED';
         }
       } catch (e) {
-        statusEl.textContent = 'CACHED MODE';
+        console.error('Sheet Fetch Error:', e);
+        statusEl.textContent = 'RETRYING...';
       }
 
       try {
-        const qRes = await fetch(`${QUIZ_API_URL}?action=getState&t=${Date.now()}`);
+        const qRes = await fetch(`${QUIZ_API_URL}?action=getState&t=${Date.now()}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
         const qData = await qRes.json();
         if (qData && qData.status === 'ok' && Array.isArray(qData.history)) {
           const now = new Date();
@@ -470,7 +494,7 @@
       renderDashboard();
     }
 
-    // ================= SCORE & AWARD CALCULATIONS (EXACT i-Con FORMULA) =================
+    // ================= SCORE & AWARD CALCULATIONS =================
     function getStudentScores(studentId) {
       const curMonth = new Date().toISOString().slice(0, 7);
       const daily = STATE.dailyLogs
@@ -515,18 +539,17 @@
 
       const topBy = (key) => [...stats].sort((a, b) => b[key] - a[key])[0];
       return [
-        { icon: "🕌", titleMl: "ടോപ്പ് സ്പിരിച്വൽ അവാർഡ്", titleEn: "Top Spiritual Award", desc: "ഖുർആൻ + സ്വലാത്ത്", winner: topBy('spiritual'), valKey: 'spiritual' },
-        { icon: "📖", titleMl: "സ്കോളർ ഓഫ് ദി മന്ത്", titleEn: "Scholar of the Month", desc: "മുത്വാലഅ + വേർഡ് സ്റ്റഡി", winner: topBy('scholar'), valKey: 'scholar' },
-        { icon: "📚", titleMl: "സ്റ്റാർ റീഡർ അവാർഡ്", titleEn: "Star Reader", desc: "എക്സ്ട്രാ റീഡിംഗ് പേജുകൾ", winner: topBy('reader'), valKey: 'reader' },
-        { icon: "⏰", titleMl: "കൺസിസ്റ്റൻസി ചാമ്പ്യൻ", titleEn: "Consistency Champion", desc: "ദിക്റുകളും ദിനചര്യകളും", winner: topBy('consistency'), valKey: 'consistency' },
-        { icon: "🌟", titleMl: "ബെസ്റ്റ് കണ്ടക്ട് അവാർഡ്", titleEn: "Best Conduct", desc: "സ്വഭാവം & ഉസ്താദ് ഇവാലുവേഷൻ", winner: topBy('conduct'), valKey: 'conduct' },
-        { icon: "👑", titleMl: "സ്റ്റുഡന്റ് ഓഫ് ദി മന്ത്", titleEn: "Student of the Month", desc: "മൊത്തം ഗ്രാൻഡ് ടോട്ടൽ", winner: topBy('grandTotal'), valKey: 'grandTotal' }
+        { icon: "🕌", title: "Top Spiritual Award", desc: "Quran + Swalath", winner: topBy('spiritual'), valKey: 'spiritual', gradient: "from-emerald-600 to-teal-700" },
+        { icon: "📖", title: "Scholar of the Month", desc: "Muthala'a + Word Study", winner: topBy('scholar'), valKey: 'scholar', gradient: "from-indigo-600 to-blue-700" },
+        { icon: "📚", title: "Star Reader", desc: "Extra Reading Pages", winner: topBy('reader'), valKey: 'reader', gradient: "from-cyan-600 to-sky-700" },
+        { icon: "⏰", title: "Consistency Champion", desc: "9 Daily Adhkar & Habits", winner: topBy('consistency'), valKey: 'consistency', gradient: "from-purple-600 to-fuchsia-700" },
+        { icon: "🌟", title: "Best Conduct", desc: "Behaviour & Ustad Eval", winner: topBy('conduct'), valKey: 'conduct', gradient: "from-rose-600 to-pink-700" },
+        { icon: "👑", title: "Student of the Month", desc: "Overall Grand Total", winner: topBy('grandTotal'), valKey: 'grandTotal', gradient: "from-amber-500 to-orange-600" }
       ];
     }
 
     // ================= RENDER ALL SLIDES =================
     function renderDashboard() {
-      // Logo
       if (STATE.config.darsLogo) {
         document.getElementById('tv-logo-box').innerHTML = `<img src="${STATE.config.darsLogo}" class="w-full h-full object-contain rounded-lg" />`;
       }
@@ -536,29 +559,39 @@
       renderTeamsAndQuizSlide();
       renderPendingAndNotesSlide();
       renderNoticesSlide();
+      updateMalayalamTicker();
     }
 
     function renderTimetableSlide() {
       const now = new Date();
       const dayKeys = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-      const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY (HOLIDAY)", "SATURDAY"];
+      const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY (JUMU'AH)", "SATURDAY"];
       const day = dayKeys[now.getDay()];
       document.getElementById('tt-day-badge').textContent = dayNames[now.getDay()];
 
       const curMin = now.getHours() * 60 + now.getMinutes();
       const batches = ["Batch A", "Batch B", "Batch C", "Batch D", "Batch E", "Batch F", "Batch G"];
+      const batchColors = [
+        "from-teal-600 to-emerald-700",
+        "from-blue-600 to-indigo-700",
+        "from-purple-600 to-violet-700",
+        "from-rose-600 to-pink-700",
+        "from-amber-600 to-orange-700",
+        "from-cyan-600 to-sky-700",
+        "from-emerald-600 to-green-700"
+      ];
 
-      document.getElementById('batches-grid').innerHTML = batches.map(b => {
+      document.getElementById('batches-grid').innerHTML = batches.map((b, idx) => {
         const tt = (STATE.config.timetables && STATE.config.timetables[b]) || FALLBACK_TIMETABLES[b];
-        let nowSub = "സ്വയം പഠനം (Self Study)";
+        let nowSub = "Self Study / Revision";
         let nowTime = "";
-        let nextSub = "വിശ്രമം / അടുത്ത സെഷൻ";
+        let nextSub = "Next Scheduled Session";
         let nextTime = "";
         let isLiveClass = false;
 
         if (day === "FRI" || !tt || !tt.days[day]) {
-          nowSub = "ജുമുഅ അവധി (Jumu'ah)";
-          nextSub = "ശനിയാഴ്ച ക്ലാസ്സ്";
+          nowSub = "Jumu'ah Holiday";
+          nextSub = "Saturday Morning Class";
         } else {
           nextSub = tt.days[day][0];
           nextTime = format12Hour(tt.slots[0].split('-')[0]);
@@ -577,47 +610,46 @@
                 nextSub = tt.days[day][i + 1];
                 nextTime = format12Hour(tt.slots[i + 1].split('-')[0]);
               } else {
-                nextSub = "ഇന്നത്തെ ക്ലാസ്സുകൾ അവസാനിച്ചു";
+                nextSub = "Classes Completed Today";
                 nextTime = "";
               }
               break;
             } else if (curMin < sMin) {
-              nowSub = "ഇടവേള / തയ്യാറെടുപ്പ്";
+              nowSub = "Break / Preparation";
               nextSub = tt.days[day][i];
               nextTime = format12Hour(startStr);
               break;
             }
           }
-          // After last slot of the day
           const lastEnd = tt.slots[tt.slots.length - 1].split('-')[1];
           const [leh, lem] = lastEnd.split(':').map(Number);
           if (curMin > (leh * 60 + lem)) {
-            nowSub = "രാത്രികാല മുത്വാലഅ / ഹിഫ്ള്";
-            nextSub = "നാളത്തെ പ്രഭാത ക്ലാസ്സ്";
+            nowSub = "Night Muthala'a / Hifz";
+            nextSub = "Tomorrow Morning Class";
             nextTime = "6:00 AM";
           }
         }
 
         return `
-          <div class="${isLiveClass ? 'glass-teal' : 'glass'} rounded-2xl p-3.5 flex flex-col justify-between shadow-md">
-            <div class="flex items-center justify-between border-b border-white/10 pb-2">
-              <span class="en font-black text-base lg:text-lg text-white">${b}</span>
-              <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isLiveClass ? 'bg-emerald-400 text-slate-950' : 'bg-white/10 text-teal-200'}">
-                ${isLiveClass ? 'ONGOING' : 'SCHEDULE'}
+          <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200/80 flex flex-col justify-between">
+            <div class="bg-gradient-to-r ${batchColors[idx]} px-3.5 py-2 flex items-center justify-between text-white">
+              <span class="en font-black text-base lg:text-lg">${b}</span>
+              <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isLiveClass ? 'bg-amber-300 text-slate-950' : 'bg-white/20 text-white'}">
+                ${isLiveClass ? '● LIVE CLASS' : 'UPCOMING'}
               </span>
             </div>
 
-            <div class="my-2">
-              <div class="ml text-[11px] text-teal-200/80 font-bold">ഇപ്പോൾ നടക്കുന്നത് (Now):</div>
-              <div class="arabic font-bold text-lg lg:text-xl text-amber-300 leading-snug truncate mt-0.5">${nowSub}</div>
-              ${nowTime ? `<div class="en text-[11px] font-bold text-emerald-300 mt-0.5">${nowTime}</div>` : ''}
+            <div class="p-3 flex-1 flex flex-col justify-center">
+              <div class="en text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Session (Now)</div>
+              <div class="arabic font-bold text-xl lg:text-2xl text-[#0f3d3e] leading-snug truncate mt-0.5">${nowSub}</div>
+              ${nowTime ? `<div class="en text-xs font-extrabold text-emerald-700 mt-0.5">${nowTime}</div>` : ''}
             </div>
 
-            <div class="bg-black/25 rounded-xl p-2 border border-white/5">
-              <div class="ml text-[10px] text-slate-300 font-bold">അടുത്ത സബ്ജക്ട് (Next):</div>
+            <div class="bg-slate-50 px-3 py-2 border-t border-slate-100">
+              <div class="en text-[10px] font-bold uppercase text-slate-400">Up Next (Next Subject)</div>
               <div class="flex items-center justify-between gap-1 mt-0.5">
-                <span class="arabic font-bold text-sm text-white truncate">${nextSub}</span>
-                ${nextTime ? `<span class="en text-[10px] font-extrabold text-amber-200 shrink-0">${nextTime}</span>` : ''}
+                <span class="arabic font-bold text-sm text-slate-800 truncate">${nextSub}</span>
+                ${nextTime ? `<span class="en text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded shrink-0">${nextTime}</span>` : ''}
               </div>
             </div>
           </div>
@@ -630,30 +662,30 @@
       document.getElementById('awards-month-badge').textContent = monthLabel;
       const awards = calculate6MonthlyAwards();
 
-      document.getElementById('tv-awards-grid').innerHTML = awards.map((a, idx) => {
+      document.getElementById('tv-awards-grid').innerHTML = awards.map(a => {
         const hasWinner = a.winner && a.winner[a.valKey] > 0;
-        const isGrand = idx === 5;
         return `
-          <div class="${isGrand ? 'glass-gold' : 'glass'} rounded-2xl p-4 flex flex-col justify-between shadow-lg">
-            <div class="flex items-start justify-between">
+          <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200/80 flex flex-col justify-between">
+            <div class="bg-gradient-to-r ${a.gradient} p-3.5 text-white flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <span class="text-3xl lg:text-4xl">${a.icon}</span>
+                <span class="text-3xl bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">${a.icon}</span>
                 <div>
-                  <h3 class="ml font-bold text-base lg:text-lg text-white leading-tight">${a.titleMl}</h3>
-                  <p class="en text-[11px] font-semibold text-teal-200/80">${a.titleEn} • <span class="ml">${a.desc}</span></p>
+                  <h3 class="en font-extrabold text-base lg:text-lg leading-tight">${a.title}</h3>
+                  <p class="en text-xs text-white/85 font-medium">${a.desc}</p>
                 </div>
               </div>
-              <span class="en text-sm lg:text-base font-black px-3 py-1 rounded-xl ${isGrand ? 'bg-amber-400 text-slate-950' : 'bg-teal-500/25 text-teal-200'}">
+              <span class="en text-sm lg:text-base font-black bg-white text-slate-900 px-3 py-1 rounded-xl shadow">
                 ${a.winner ? a.winner[a.valKey] : 0} pts
               </span>
             </div>
 
-            <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
+            <div class="p-4 flex items-center justify-between bg-white">
               <div>
-                <div class="en font-black text-base lg:text-lg ${hasWinner ? 'text-amber-300' : 'text-slate-400'} truncate">
-                  ${hasWinner ? a.winner.student.name : 'മത്സരം പുരോഗമിക്കുന്നു...'}
+                <div class="en text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Leader</div>
+                <div class="en font-black text-lg lg:text-xl ${hasWinner ? 'text-slate-900' : 'text-slate-400'} truncate mt-0.5">
+                  ${hasWinner ? a.winner.student.name : 'In Progress...'}
                 </div>
-                ${hasWinner ? `<div class="en text-xs font-bold text-slate-300">${a.winner.student.id} • ${a.winner.student.batch} • ${a.winner.student.team}</div>` : ''}
+                ${hasWinner ? `<div class="en text-xs font-bold text-teal-700 mt-0.5">${a.winner.student.id} • ${a.winner.student.batch} • ${a.winner.student.team}</div>` : ''}
               </div>
             </div>
           </div>
@@ -679,37 +711,52 @@
         return { team: t, pts, compPts, clubPts, acadPts };
       }).sort((a, b) => b.pts - a.pts);
 
+      const rankBadges = [
+        "from-amber-400 to-yellow-500 text-slate-950",
+        "from-slate-300 to-slate-400 text-slate-900",
+        "from-amber-600 to-orange-700 text-white",
+        "from-teal-700 to-teal-800 text-white"
+      ];
+
       document.getElementById('tv-teams-list').innerHTML = teamTotals.map((t, i) => `
-        <div class="${i === 0 ? 'glass-gold' : 'glass'} rounded-2xl px-4 py-3 flex items-center justify-between">
+        <div class="bg-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-md border ${i === 0 ? 'border-amber-400 ring-2 ring-amber-300/50' : 'border-slate-200'}">
           <div class="flex items-center gap-3.5">
-            <span class="en w-9 h-9 rounded-xl ${i === 0 ? 'bg-amber-400 text-slate-950' : 'bg-teal-500/30 text-white'} font-black text-lg flex items-center justify-center">
+            <span class="en w-10 h-10 rounded-xl bg-gradient-to-br ${rankBadges[i]} font-black text-lg flex items-center justify-center shadow">
               #${i + 1}
             </span>
             <div>
-              <div class="en font-extrabold text-base lg:text-lg text-white">${t.team}</div>
-              <div class="en text-xs text-slate-300 font-semibold">
-                Comp: <b class="text-amber-300">${t.compPts}</b> • Club: <b class="text-teal-300">${t.clubPts}</b> • Acad/Proj: <b class="text-rose-300">${t.acadPts}</b>
+              <div class="en font-extrabold text-base lg:text-lg text-slate-900">${t.team}</div>
+              <div class="en text-xs text-slate-500 font-semibold">
+                Comp: <b class="text-amber-700">${t.compPts}</b> • Club: <b class="text-indigo-700">${t.clubPts}</b> • Acad/Proj: <b class="text-rose-700">${t.acadPts}</b>
               </div>
             </div>
           </div>
-          <div class="en text-xl lg:text-2xl font-black ${i === 0 ? 'text-amber-300' : 'text-teal-200'}">${t.pts} <span class="text-xs font-bold">pts</span></div>
+          <div class="en text-xl lg:text-2xl font-black text-[#0f3d3e]">${t.pts} <span class="text-xs font-bold text-slate-500">pts</span></div>
         </div>
       `).join('');
 
       const w = STATE.quizWinners || {};
+      const catColors = {
+        "Senior": "from-indigo-600 to-blue-700",
+        "Junior": "from-teal-600 to-emerald-700",
+        "Sub Junior": "from-amber-500 to-orange-600"
+      };
+
       document.getElementById('tv-quiz-winners').innerHTML = ['Senior', 'Junior', 'Sub Junior'].map(cat => {
         const top = w[cat];
         return `
-          <div class="glass-teal rounded-2xl p-3.5 flex flex-col justify-center">
-            <div class="flex items-center justify-between">
-              <span class="en text-xs font-black uppercase tracking-wider text-amber-300">${cat} Category</span>
-              ${top ? `<span class="en text-xs font-black bg-emerald-400 text-slate-950 px-2.5 py-0.5 rounded-full">${top.score} Marks</span>` : ''}
+          <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200 flex flex-col justify-between">
+            <div class="bg-gradient-to-r ${catColors[cat]} px-4 py-2 text-white flex items-center justify-between">
+              <span class="en text-xs font-black uppercase tracking-wider">${cat} Category</span>
+              ${top ? `<span class="en text-xs font-black bg-white text-slate-900 px-2.5 py-0.5 rounded-full">${top.score} Marks</span>` : ''}
             </div>
-            ${top
-              ? `<div class="en font-black text-base lg:text-lg text-white mt-1 truncate">${top.name}</div>
-                 <div class="en text-xs text-teal-200 font-semibold">${top.studentId} • ${top.team}</div>`
-              : `<div class="ml text-sm text-slate-300 mt-1">ഫലങ്ങൾ കാത്തിരിക്കുന്നു...</div>`
-            }
+            <div class="p-3.5">
+              ${top
+                ? `<div class="en font-black text-base lg:text-lg text-slate-900 truncate">${top.name}</div>
+                   <div class="en text-xs text-slate-500 font-bold mt-0.5">${top.studentId} • ${top.team}</div>`
+                : `<div class="en text-sm text-slate-400 font-semibold">Awaiting this week's quiz scores...</div>`
+              }
+            </div>
           </div>
         `;
       }).join('');
@@ -718,7 +765,6 @@
     function renderPendingAndNotesSlide() {
       const students = STATE.config.students || [];
 
-      // 1. Pending Projects
       const pendingHtml = [];
       STATE.projects.slice().reverse().forEach(p => {
         let done = [];
@@ -727,14 +773,14 @@
         const notDone = targets.filter(s => !done.includes(s.id));
         if (notDone.length > 0) {
           pendingHtml.push(`
-            <div class="bg-white/5 rounded-xl p-3 border border-rose-400/20">
+            <div class="bg-rose-50/80 rounded-xl p-3 border border-rose-200">
               <div class="flex items-center justify-between">
-                <span class="en font-extrabold text-sm text-rose-200">${p.Title} (${p.TargetBatch})</span>
-                <span class="en text-xs font-bold text-rose-300">${notDone.length} Pending</span>
+                <span class="en font-extrabold text-sm text-rose-950">${p.Title} <span class="text-rose-600">(${p.TargetBatch})</span></span>
+                <span class="en text-xs font-extrabold bg-rose-600 text-white px-2.5 py-0.5 rounded-full">${notDone.length} Pending</span>
               </div>
               <div class="flex flex-wrap gap-1.5 mt-2">
-                ${notDone.slice(0, 12).map(s => `<span class="en text-[11px] font-bold bg-rose-500/20 text-rose-100 px-2 py-0.5 rounded-md">${s.name}</span>`).join('')}
-                ${notDone.length > 12 ? `<span class="en text-[11px] text-rose-300 font-bold">+${notDone.length - 12} more</span>` : ''}
+                ${notDone.slice(0, 12).map(s => `<span class="en text-[11px] font-bold bg-white text-rose-800 border border-rose-200 px-2 py-0.5 rounded-md">${s.name}</span>`).join('')}
+                ${notDone.length > 12 ? `<span class="en text-[11px] text-rose-700 font-extrabold">+${notDone.length - 12} more</span>` : ''}
               </div>
             </div>
           `);
@@ -743,9 +789,8 @@
 
       document.getElementById('tv-pending-projects').innerHTML = pendingHtml.length
         ? pendingHtml.join('')
-        : `<div class="ml text-emerald-300 font-bold text-base py-6 text-center">✅ എല്ലാ കുട്ടികളും പ്രോജക്റ്റുകൾ പൂർത്തിയാക്കിയിരിക്കുന്നു!</div>`;
+        : `<div class="en text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 font-bold text-base py-8 text-center">✅ All Students Have Completed Their Projects!</div>`;
 
-      // 2. Incomplete / Pending Notes from Ustad Evaluations
       const incNotes = STATE.evaluations
         .filter(e => e.NoteComplete === 'Incomplete' || e.NoteComplete === 'Pending')
         .slice().reverse();
@@ -754,41 +799,70 @@
         ? incNotes.slice(0, 8).map(ev => {
             const st = students.find(s => s.id === ev.StudentID);
             return `
-              <div class="bg-white/5 rounded-xl p-3 border border-amber-400/20 flex items-center justify-between gap-2">
+              <div class="bg-amber-50/80 rounded-xl p-3 border border-amber-200 flex items-center justify-between gap-2">
                 <div>
-                  <div class="en font-extrabold text-sm text-white">${st ? st.name : ev.StudentID} <span class="text-xs text-teal-200">(${st ? st.batch : ''})</span></div>
-                  <div class="text-xs text-amber-200 mt-0.5">
-                    <span class="arabic font-bold text-sm">${ev.Kithab || 'General'}</span> • <span class="ml">${ev.Remarks || 'നോട്ട് പൂർത്തിയാക്കുക'}</span>
+                  <div class="en font-extrabold text-sm text-slate-900">${st ? st.name : ev.StudentID} <span class="text-xs text-teal-700">(${st ? st.batch : ''})</span></div>
+                  <div class="text-xs text-slate-600 mt-0.5">
+                    <span class="arabic font-bold text-sm text-amber-900">${ev.Kithab || 'General'}</span> • <span class="en">${ev.Remarks || 'Complete your class notes'}</span>
                   </div>
                 </div>
-                <span class="en text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-500/25 text-amber-200 shrink-0">${ev.NoteComplete}</span>
+                <span class="en text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 shrink-0">${ev.NoteComplete}</span>
               </div>
             `;
           }).join('')
-        : `<div class="ml text-emerald-300 font-bold text-base py-6 text-center">✅ നോട്ട് പൂർത്തിയാക്കാൻ ആരും ബാക്കിയില്ല!</div>`;
+        : `<div class="en text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 font-bold text-base py-8 text-center">✅ All Class Notes Are Up to Date!</div>`;
     }
 
     function renderNoticesSlide() {
       const notices = STATE.notices.slice().reverse();
       document.getElementById('tv-notices-grid').innerHTML = notices.length
         ? notices.slice(0, 4).map(n => `
-            <div class="glass-teal rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-teal-200 flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between gap-2 mb-2">
-                  <span class="en text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">NOTICE</span>
-                  <span class="en text-xs font-bold text-teal-200">${String(n.Date || '').split('T')[0]}</span>
+                <div class="bg-gradient-to-r from-[#0f3d3e] to-teal-700 px-4 py-2.5 flex items-center justify-between text-white">
+                  <span class="en text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">ANNOUNCEMENT</span>
+                  <span class="en text-xs font-bold text-teal-100">${String(n.Date || '').split('T')[0]}</span>
                 </div>
-                <h3 class="en font-extrabold text-lg lg:text-xl text-white">${n.Title}</h3>
-                <p class="en text-sm lg:text-base text-slate-200 mt-2 leading-relaxed">${n.Message}</p>
+                <div class="p-4">
+                  <h3 class="en font-extrabold text-lg lg:text-xl text-slate-900">${n.Title}</h3>
+                  <p class="en text-sm lg:text-base text-slate-600 mt-2 leading-relaxed">${n.Message}</p>
+                </div>
               </div>
-              <div class="en text-xs font-bold text-amber-300 mt-3 pt-2 border-t border-white/10">
+              <div class="en text-xs font-bold text-teal-800 bg-teal-50 px-4 py-2.5 border-t border-teal-100">
                 Posted by: ${n.PostedBy || 'Ustad Desk'}
               </div>
             </div>
           `).join('')
-        : `<div class="col-span-2 glass rounded-2xl p-8 flex items-center justify-center">
-             <p class="ml text-xl text-teal-200 font-bold">നിലവിൽ പുതിയ അറിയിപ്പുകളൊന്നും ഇല്ല.</p>
+        : `<div class="col-span-2 bg-white rounded-2xl p-8 flex items-center justify-center border border-slate-200 shadow">
+             <p class="en text-xl text-slate-400 font-bold">No new announcements posted yet.</p>
            </div>`;
+    }
+
+    // ================= BOTTOM MALAYALAM NEWS TICKER =================
+    function updateMalayalamTicker() {
+      const tickerEl = document.getElementById('ml-news-ticker');
+      const items = [];
+
+      // Add latest notices from sheet
+      if (STATE.notices && STATE.notices.length > 0) {
+        STATE.notices.slice().reverse().slice(0, 4).forEach(n => {
+          items.push(`📢 അറിയിപ്പ് (${n.PostedBy || 'Ustad'}): ${n.Title} — ${n.Message}`);
+        });
+      }
+
+      // Add monthly grand leader
+      const awards = calculate6MonthlyAwards();
+      const grand = awards[5];
+      if (grand && grand.winner && grand.winner.grandTotal > 0) {
+        items.push(`👑 ഈ മാസത്തെ ലീഡർ (Student of the Month): ${grand.winner.student.name} (${grand.winner.student.batch}) - ${grand.winner.grandTotal} പോയിന്റുകൾ`);
+      }
+
+      // Add default institutional welcome
+      items.push("🕌 ഇശാഅത്തുസ്സുന്ന ദഅ്‌വ ദർസ് പുതുപ്പാടം • എല്ലാവരും കൃത്യസമയത്ത് ക്ലാസ്സുകളിൽ ഹാജരാകുക, ദിനചര്യകൾ i-Con ആപ്പിൽ രേഖപ്പെടുത്തുക.");
+
+      const singlePass = items.map(txt => `<span class="mx-6">${txt}</span><span class="text-amber-600 mx-2">★</span>`).join('');
+      // Duplicate for seamless continuous scroll
+      tickerEl.innerHTML = singlePass + singlePass;
     }
 
     // ================= FULLSCREEN & WAKE LOCK =================
@@ -818,8 +892,8 @@
 
       setInterval(updateClock, 1000);
       setInterval(() => goToSlide(currentSlide + 1), SLIDE_DURATION);
-      setInterval(renderTimetableSlide, 30000); // Update current/next class every 30s
-      setInterval(fetchAllData, 60000);       // Sync Google Sheet every 60s
+      setInterval(renderTimetableSlide, 30000);
+      setInterval(fetchAllData, 45000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') requestWakeLock();
       });
