@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>i-Con Live TV Dashboard | Isha-athussunna Dawa Dars</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manjari:wght@400;700&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manjari:wght@400;700&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #fef3c7 100%);
-      color: #0f172a;
+      background: linear-gradient(135deg, #061c1d 0%, #0b2d30 50%, #051618 100%);
+      color: #f8fafc;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
@@ -22,14 +23,27 @@
     .ml { font-family: 'Manjari', sans-serif; }
     .arabic { font-family: 'Amiri', serif; }
 
+    /* Premium Glass Cards matching high-contrast TV prototype */
+    .tv-card {
+      background: rgba(15, 36, 39, 0.85);
+      border: 1px solid rgba(45, 212, 191, 0.22);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+    }
+    .tv-card-light {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.35);
+    }
+
     /* Slide Transitions */
     .slide {
       position: absolute;
       inset: 0;
       opacity: 0;
-      transform: translateY(16px) scale(0.985);
+      transform: translateY(14px) scale(0.99);
       pointer-events: none;
-      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
       display: flex;
       flex-direction: column;
     }
@@ -39,7 +53,7 @@
       pointer-events: auto;
     }
 
-    /* Progress Bar Animation */
+    /* Progress Bar */
     @keyframes progressFill {
       from { width: 0%; }
       to { width: 100%; }
@@ -48,7 +62,7 @@
       animation: progressFill 15s linear infinite;
     }
 
-    /* Bottom Malayalam News Ticker */
+    /* Smooth Malayalam News Ticker */
     @keyframes tickerScroll {
       0% { transform: translateX(0%); }
       100% { transform: translateX(-50%); }
@@ -56,17 +70,17 @@
     .ticker-track {
       display: flex;
       width: max-content;
-      animation: tickerScroll 36s linear infinite;
+      animation: tickerScroll 38s linear infinite;
     }
     .ticker-track:hover {
       animation-play-state: paused;
     }
 
-    /* Pulse Dot */
+    /* Live Pulse Ring */
     @keyframes pulseRing {
       0% { transform: scale(0.85); opacity: 0.9; }
-      70% { transform: scale(1.8); opacity: 0; }
-      100% { transform: scale(1.8); opacity: 0; }
+      70% { transform: scale(1.9); opacity: 0; }
+      100% { transform: scale(1.9); opacity: 0; }
     }
     .live-dot::before {
       content: '';
@@ -78,42 +92,42 @@
     }
 
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-thumb { background: rgba(15, 61, 62, 0.25); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(45, 212, 191, 0.3); border-radius: 4px; }
   </style>
 </head>
 <body class="flex flex-col justify-between p-3.5 lg:p-5">
 
-  <!-- TOP HEADER BAR -->
-  <header class="flex items-center justify-between bg-gradient-to-r from-[#0f3d3e] via-[#134e4a] to-[#0f3d3e] text-white rounded-2xl px-5 py-3 shrink-0 z-20 shadow-xl border border-teal-700/40">
+  <!-- TOP EXECUTIVE HEADER BAR -->
+  <header class="flex items-center justify-between bg-gradient-to-r from-[#0f3d3e] via-[#155254] to-[#0d3436] rounded-2xl px-5 py-3 shrink-0 z-20 shadow-2xl border border-teal-400/25">
     <div class="flex items-center gap-4">
-      <div id="tv-logo-box" class="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-md overflow-hidden shrink-0">
+      <div id="tv-logo-box" class="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
         <svg viewBox="0 0 100 120" class="w-full h-full">
           <path d="M50 5 C50 5 15 52 15 80 C15 100 31 115 50 115 C69 115 85 100 85 80 C85 52 50 5 50 5 Z M50 32 C62 50 68 65 68 78 C68 89 60 98 50 98 C40 98 32 89 32 78 C32 65 38 50 50 32 Z" fill="#0f3d3e"/>
           <path d="M50 32 C42 48 42 68 50 85 C58 68 58 48 50 32 Z" fill="#1b5e60"/>
         </svg>
       </div>
       <div>
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-3">
           <h1 class="en font-black text-xl lg:text-2xl tracking-tight text-white">ISHA-ATHUSSUNNA DAWA DARS</h1>
-          <span class="relative inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold">
+          <span class="relative inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs font-extrabold">
             <span class="relative w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
             <span id="sync-status" class="en">SYNCING</span>
           </span>
         </div>
-        <p class="en text-teal-100/90 text-xs lg:text-sm font-semibold mt-0.5">Puthuppadam Ayikkarappadi • i-Con Live Academic & Campus Display</p>
+        <p class="en text-teal-200/90 text-xs lg:text-sm font-semibold mt-0.5">Puthuppadam Ayikkarappadi • i-Con Smart Campus Live Analytics</p>
       </div>
     </div>
 
-    <!-- Slide Dots + Live 12-Hour Clock -->
+    <!-- Slide Dots & 12-Hour Clock -->
     <div class="flex items-center gap-5">
       <div class="hidden xl:flex items-center gap-2" id="slide-dots"></div>
 
-      <div class="text-right bg-black/20 px-4 py-1.5 rounded-xl border border-white/10">
+      <div class="text-right bg-black/30 px-4 py-1.5 rounded-xl border border-amber-400/25">
         <div id="tv-clock" class="en font-black text-2xl lg:text-3xl text-amber-300 tracking-wide leading-none">12:00:00 PM</div>
         <div id="tv-date" class="en text-xs text-teal-100 font-semibold mt-1">--</div>
       </div>
 
-      <button onclick="toggleFullScreen()" title="Fullscreen (F11)" class="p-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white transition border border-white/20">
+      <button onclick="toggleFullScreen()" title="Fullscreen (F11)" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition border border-white/20">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
         </svg>
@@ -124,13 +138,13 @@
   <!-- MAIN SLIDESHOW STAGE -->
   <main class="relative flex-1 my-3 overflow-hidden">
 
-    <!-- SLIDE 1: LIVE TIMETABLE (BATCH A - G COLORFUL CARDS) -->
+    <!-- SLIDE 1: LIVE TIMETABLE (BATCH A - G ALL 7 CARDS) -->
     <section id="slide-0" class="slide active">
       <div class="flex items-center justify-between mb-2.5 px-1">
-        <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e] flex items-center gap-2">
-          <span>🕒</span> <span>Live Class Timetable & Next Subject (Batch A – Batch G)</span>
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-teal-200 flex items-center gap-2">
+          <span>🕒</span> <span>Live Class Timetable & Up Next (Batch A – Batch G)</span>
         </h2>
-        <span id="tt-day-badge" class="en text-xs font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full bg-[#0f3d3e] text-white shadow-sm">TODAY</span>
+        <span id="tt-day-badge" class="en text-xs font-extrabold uppercase tracking-wider px-4 py-1 rounded-full bg-amber-400 text-slate-950 shadow">TODAY</span>
       </div>
       <div id="batches-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1"></div>
     </section>
@@ -138,56 +152,73 @@
     <!-- SLIDE 2: 6 MONTHLY CHAMPIONS -->
     <section id="slide-1" class="slide">
       <div class="flex items-center justify-between mb-3 px-1">
-        <h2 class="en text-lg lg:text-2xl font-extrabold text-amber-900 flex items-center gap-2">
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-amber-300 flex items-center gap-2">
           <span>🎖️</span> <span>6 Monthly Champions (Live Auto-Rank)</span>
         </h2>
-        <span id="awards-month-badge" class="en text-xs font-extrabold uppercase px-3.5 py-1 rounded-full bg-amber-500 text-slate-950 shadow-sm">CURRENT MONTH</span>
+        <span id="awards-month-badge" class="en text-xs font-extrabold uppercase px-4 py-1 rounded-full bg-amber-400 text-slate-950 shadow">CURRENT MONTH</span>
       </div>
       <div id="tv-awards-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 flex-1"></div>
     </section>
 
-    <!-- SLIDE 3: 4 TEAMS STANDINGS + DAILY QUIZ WEEKLY CHAMPIONS -->
+    <!-- SLIDE 3: 4 TEAMS VERTICAL BAR CHART + STANDINGS + DAILY QUIZ -->
     <section id="slide-2" class="slide">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
-        <!-- Left 7 Cols: 4 Teams -->
-        <div class="lg:col-span-7 flex flex-col">
-          <div class="flex items-center justify-between mb-2.5 px-1">
-            <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e]">🏆 4 Teams Overall Standings</h2>
-            <span class="en text-xs font-bold text-teal-900 bg-teal-100 px-3 py-1 rounded-full border border-teal-200">Comp + Club + Academic</span>
+        <!-- Left 7 Cols: Vertical Column Bar Chart + 4 Team Cards -->
+        <div class="lg:col-span-7 tv-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="en text-lg lg:text-xl font-extrabold text-teal-200">📊 4 Teams Live Performance Analytics</h2>
+            <span class="en text-xs font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30 px-3 py-0.5 rounded-full">Comp + Club + Academic</span>
           </div>
-          <div id="tv-teams-list" class="grid grid-cols-1 gap-3 flex-1"></div>
+          <div class="relative flex-1 min-h-[190px] w-full bg-black/25 rounded-xl p-3 border border-white/10">
+            <canvas id="teamsBarChart"></canvas>
+          </div>
+          <div id="tv-teams-mini" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3"></div>
         </div>
 
         <!-- Right 5 Cols: Daily Quiz Weekly Champions -->
         <div class="lg:col-span-5 flex flex-col">
           <div class="flex items-center justify-between mb-2.5 px-1">
-            <h2 class="en text-lg lg:text-2xl font-extrabold text-indigo-950">📰 Daily Quiz Weekly Champions</h2>
-            <span class="en text-xs font-extrabold text-white bg-indigo-600 px-3 py-1 rounded-full shadow-sm">THIS WEEK</span>
+            <h2 class="en text-lg lg:text-xl font-extrabold text-amber-300">📰 Daily Quiz Weekly Champions</h2>
+            <span class="en text-xs font-extrabold text-slate-950 bg-amber-400 px-3 py-1 rounded-full shadow">THIS WEEK</span>
           </div>
           <div id="tv-quiz-winners" class="grid grid-cols-1 gap-3 flex-1"></div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 4: PENDING PROJECTS & INCOMPLETE NOTES ALERT -->
+    <!-- SLIDE 4: TOP 5 STUDENTS BAR GRAPH + PENDING PROJECTS & NOTES -->
     <section id="slide-3" class="slide">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
-        <!-- Pending Projects -->
-        <div class="bg-white/95 rounded-2xl p-4 flex flex-col border-2 border-rose-200 shadow-lg">
-          <div class="flex items-center justify-between border-b border-rose-100 pb-2.5 mb-3">
-            <h2 class="en text-lg lg:text-xl font-extrabold text-rose-800">📌 Pending Weekly Projects</h2>
-            <span class="en text-xs font-extrabold bg-rose-600 text-white px-3 py-1 rounded-full">ACTION REQUIRED</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+        <!-- Left 5 Cols: Top 5 Students Vertical Column Graph -->
+        <div class="lg:col-span-5 tv-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="en text-lg font-extrabold text-amber-300">📈 Top 5 Monthly Scorers</h2>
+            <span class="en text-[11px] font-bold text-teal-200 bg-teal-500/20 px-2.5 py-0.5 rounded-full">GRAND TOTAL</span>
           </div>
-          <div id="tv-pending-projects" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          <div class="relative flex-1 w-full bg-black/25 rounded-xl p-3 border border-white/10">
+            <canvas id="topStudentsChart"></canvas>
+          </div>
         </div>
 
-        <!-- Incomplete Notes -->
-        <div class="bg-white/95 rounded-2xl p-4 flex flex-col border-2 border-amber-200 shadow-lg">
-          <div class="flex items-center justify-between border-b border-amber-100 pb-2.5 mb-3">
-            <h2 class="en text-lg lg:text-xl font-extrabold text-amber-900">📝 Note Completion Alert</h2>
-            <span class="en text-xs font-extrabold bg-amber-500 text-slate-950 px-3 py-1 rounded-full">INCOMPLETE / PENDING</span>
+        <!-- Right 7 Cols: Pending Projects & Incomplete Notes -->
+        <div class="lg:col-span-7 grid grid-rows-2 gap-3">
+          <!-- Pending Projects -->
+          <div class="tv-card rounded-2xl p-3.5 flex flex-col border-rose-400/35">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+              <h2 class="en text-base lg:text-lg font-extrabold text-rose-300">📌 Pending Weekly Projects</h2>
+              <span class="en text-[11px] font-extrabold bg-rose-500 text-white px-2.5 py-0.5 rounded-full">ACTION REQUIRED</span>
+            </div>
+            <div id="tv-pending-projects" class="space-y-2 overflow-y-auto flex-1 pr-1"></div>
           </div>
-          <div id="tv-incomplete-notes" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+
+          <!-- Incomplete Notes -->
+          <div class="tv-card rounded-2xl p-3.5 flex flex-col border-amber-400/35">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+              <h2 class="en text-base lg:text-lg font-extrabold text-amber-300">📝 Note Completion Alert</h2>
+              <span class="en text-[11px] font-extrabold bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full">INCOMPLETE / PENDING</span>
+            </div>
+            <div id="tv-incomplete-notes" class="space-y-2 overflow-y-auto flex-1 pr-1"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -195,8 +226,8 @@
     <!-- SLIDE 5: LATEST NOTICES & ANNOUNCEMENTS -->
     <section id="slide-4" class="slide">
       <div class="flex items-center justify-between mb-3 px-1">
-        <h2 class="en text-lg lg:text-2xl font-extrabold text-[#0f3d3e]">📢 Official Notices & Announcements</h2>
-        <span class="en text-xs font-bold text-white bg-[#0f3d3e] px-3.5 py-1 rounded-full shadow-sm">From Ustad Control Desk</span>
+        <h2 class="en text-lg lg:text-2xl font-extrabold text-teal-200">📢 Official Notices & Announcements</h2>
+        <span class="en text-xs font-bold text-slate-950 bg-amber-400 px-3.5 py-1 rounded-full shadow">From Ustad Control Desk</span>
       </div>
       <div id="tv-notices-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"></div>
     </section>
@@ -204,37 +235,31 @@
   </main>
 
   <!-- BOTTOM MALAYALAM NEWS TICKER & SLIDE PROGRESS -->
-  <footer class="bg-white/95 rounded-2xl shadow-lg border border-slate-200/80 overflow-hidden shrink-0">
-    <!-- Top thin progress bar -->
-    <div class="w-full h-1.5 bg-slate-200">
-      <div id="slide-progress" class="h-full bg-gradient-to-r from-teal-600 via-indigo-600 to-amber-500 progress-anim"></div>
+  <footer class="bg-[#092325] rounded-2xl shadow-2xl border border-teal-500/30 overflow-hidden shrink-0">
+    <div class="w-full h-1.5 bg-white/10">
+      <div id="slide-progress" class="h-full bg-gradient-to-r from-teal-400 via-emerald-300 to-amber-400 progress-anim"></div>
     </div>
 
     <div class="flex items-center justify-between">
-      <!-- Left Badge -->
-      <div class="bg-gradient-to-r from-rose-600 to-amber-600 text-white px-4 py-2.5 font-extrabold text-xs lg:text-sm shrink-0 flex items-center gap-2 z-10 shadow">
-        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+      <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 px-4 py-2.5 font-extrabold text-xs lg:text-sm shrink-0 flex items-center gap-2 z-10 shadow">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-700 animate-ping"></span>
         <span class="ml font-bold">പ്രധാന അറിയിപ്പുകൾ</span>
       </div>
 
-      <!-- Scrolling Malayalam Ticker -->
-      <div class="flex-1 overflow-hidden py-2 bg-slate-50">
-        <div id="ml-news-ticker" class="ticker-track ml font-bold text-sm lg:text-base text-slate-800">
+      <div class="flex-1 overflow-hidden py-2 bg-[#06181a]">
+        <div id="ml-news-ticker" class="ticker-track ml font-bold text-sm lg:text-base text-amber-100">
           <span class="mx-8">ഇശാഅത്തുസ്സുന്ന ദഅ്‌വ ദർസ് പുതുപ്പാടം • i-Con സ്മാർട്ട് ലൈവ് ഡിസ്പ്ലേ ബോർഡിലേക്ക് സ്വാഗതം!</span>
-          <span class="mx-8">•</span>
-          <span class="mx-8">വിവരങ്ങൾ Google Sheet-ൽ നിന്നും അപ്‌ഡേറ്റ് ചെയ്തുകൊണ്ടിരിക്കുന്നു...</span>
         </div>
       </div>
 
-      <!-- Right Slide Counter -->
-      <div id="slide-title-footer" class="hidden md:block bg-slate-900 text-amber-300 en text-xs font-bold px-4 py-2.5 shrink-0">
+      <div id="slide-title-footer" class="hidden md:block bg-[#0f3d3e] text-amber-300 en text-xs font-extrabold px-4 py-2.5 shrink-0 border-l border-white/10">
         Slide 1 / 5 • Timetable
       </div>
     </div>
   </footer>
 
   <script>
-    // ================= DIRECT GOOGLE SHEET API ENDPOINTS =================
+    // ================= GOOGLE SHEETS API ENDPOINTS =================
     const ICON_API_URL = 'https://script.google.com/macros/s/AKfycbw5BMn8o3wGZniXr0EgZ1x-PbDdOUV6JAtmcWJdBumFsUDoZtmKH9xwfwqe-Vo1XG1g/exec';
     const QUIZ_API_URL = 'https://script.google.com/macros/s/AKfycbyUSKnyokpuCE8W9P4siZMUCT5h9LpcxtQGHtSxlrAx9TXW0sen3lgHXAGOE0E5QSudLg/exec';
 
@@ -368,14 +393,16 @@
     const SLIDE_NAMES = [
       "Slide 1 / 5 • Live Timetable",
       "Slide 2 / 5 • 6 Monthly Awards",
-      "Slide 3 / 5 • Teams & Quiz",
-      "Slide 4 / 5 • Projects & Notes",
+      "Slide 3 / 5 • Teams Graph & Quiz",
+      "Slide 4 / 5 • Top Scorers & Pending",
       "Slide 5 / 5 • Notices"
     ];
 
     let currentSlide = 0;
     const totalSlides = 5;
     const SLIDE_DURATION = 15000;
+    let teamsChartInstance = null;
+    let topStudentsChartInstance = null;
 
     // ================= 12-HOUR CLOCK & DATE =================
     function format12Hour(hhmm) {
@@ -412,7 +439,7 @@
     function buildSlideDots() {
       const dotsEl = document.getElementById('slide-dots');
       dotsEl.innerHTML = Array.from({ length: totalSlides }).map((_, i) => `
-        <button onclick="goToSlide(${i})" class="h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-amber-300' : 'w-2.5 bg-white/30 hover:bg-white/60'}"></button>
+        <button onclick="goToSlide(${i})" class="h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-amber-400' : 'w-2.5 bg-white/30 hover:bg-white/60'}"></button>
       `).join('');
     }
 
@@ -452,8 +479,7 @@
           statusEl.textContent = 'LIVE SYNCED';
         }
       } catch (e) {
-        console.error('Sheet Fetch Error:', e);
-        statusEl.textContent = 'RETRYING...';
+        statusEl.textContent = 'CACHED';
       }
 
       try {
@@ -540,7 +566,7 @@
       const topBy = (key) => [...stats].sort((a, b) => b[key] - a[key])[0];
       return [
         { icon: "🕌", title: "Top Spiritual Award", desc: "Quran + Swalath", winner: topBy('spiritual'), valKey: 'spiritual', gradient: "from-emerald-600 to-teal-700" },
-        { icon: "📖", title: "Scholar of the Month", desc: "Muthala'a + Word Study", winner: topBy('scholar'), valKey: 'scholar', gradient: "from-indigo-600 to-blue-700" },
+        { icon: "📖", title: "Scholar of the Month", desc: "Muthala'a + Word Study", winner: topBy('scholar'), valKey: 'scholar', gradient: "from-blue-600 to-indigo-700" },
         { icon: "📚", title: "Star Reader", desc: "Extra Reading Pages", winner: topBy('reader'), valKey: 'reader', gradient: "from-cyan-600 to-sky-700" },
         { icon: "⏰", title: "Consistency Champion", desc: "9 Daily Adhkar & Habits", winner: topBy('consistency'), valKey: 'consistency', gradient: "from-purple-600 to-fuchsia-700" },
         { icon: "🌟", title: "Best Conduct", desc: "Behaviour & Ustad Eval", winner: topBy('conduct'), valKey: 'conduct', gradient: "from-rose-600 to-pink-700" },
@@ -557,7 +583,7 @@
       renderTimetableSlide();
       renderAwardsSlide();
       renderTeamsAndQuizSlide();
-      renderPendingAndNotesSlide();
+      renderTopStudentsAndPendingSlide();
       renderNoticesSlide();
       updateMalayalamTicker();
     }
@@ -571,14 +597,14 @@
 
       const curMin = now.getHours() * 60 + now.getMinutes();
       const batches = ["Batch A", "Batch B", "Batch C", "Batch D", "Batch E", "Batch F", "Batch G"];
-      const batchColors = [
-        "from-teal-600 to-emerald-700",
-        "from-blue-600 to-indigo-700",
-        "from-purple-600 to-violet-700",
-        "from-rose-600 to-pink-700",
-        "from-amber-600 to-orange-700",
-        "from-cyan-600 to-sky-700",
-        "from-emerald-600 to-green-700"
+      const batchHeaders = [
+        "from-teal-500 to-emerald-600",
+        "from-blue-500 to-indigo-600",
+        "from-purple-500 to-violet-600",
+        "from-rose-500 to-pink-600",
+        "from-amber-500 to-orange-600",
+        "from-cyan-500 to-sky-600",
+        "from-emerald-500 to-green-600"
       ];
 
       document.getElementById('batches-grid').innerHTML = batches.map((b, idx) => {
@@ -631,25 +657,25 @@
         }
 
         return `
-          <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200/80 flex flex-col justify-between">
-            <div class="bg-gradient-to-r ${batchColors[idx]} px-3.5 py-2 flex items-center justify-between text-white">
+          <div class="tv-card rounded-2xl overflow-hidden flex flex-col justify-between">
+            <div class="bg-gradient-to-r ${batchHeaders[idx]} px-3.5 py-2 flex items-center justify-between text-white">
               <span class="en font-black text-base lg:text-lg">${b}</span>
-              <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isLiveClass ? 'bg-amber-300 text-slate-950' : 'bg-white/20 text-white'}">
-                ${isLiveClass ? '● LIVE CLASS' : 'UPCOMING'}
+              <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isLiveClass ? 'bg-amber-300 text-slate-950' : 'bg-black/25 text-white'}">
+                ${isLiveClass ? '● LIVE NOW' : 'SCHEDULE'}
               </span>
             </div>
 
             <div class="p-3 flex-1 flex flex-col justify-center">
-              <div class="en text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Session (Now)</div>
-              <div class="arabic font-bold text-xl lg:text-2xl text-[#0f3d3e] leading-snug truncate mt-0.5">${nowSub}</div>
-              ${nowTime ? `<div class="en text-xs font-extrabold text-emerald-700 mt-0.5">${nowTime}</div>` : ''}
+              <div class="en text-[10px] font-bold uppercase tracking-wider text-teal-200/75">Current Subject (Now)</div>
+              <div class="arabic font-bold text-xl lg:text-2xl text-amber-300 leading-snug truncate mt-0.5">${nowSub}</div>
+              ${nowTime ? `<div class="en text-xs font-bold text-emerald-300 mt-0.5">${nowTime}</div>` : ''}
             </div>
 
-            <div class="bg-slate-50 px-3 py-2 border-t border-slate-100">
-              <div class="en text-[10px] font-bold uppercase text-slate-400">Up Next (Next Subject)</div>
+            <div class="bg-black/30 px-3 py-2 border-t border-white/10">
+              <div class="en text-[10px] font-bold uppercase text-slate-300">Up Next (Next Subject)</div>
               <div class="flex items-center justify-between gap-1 mt-0.5">
-                <span class="arabic font-bold text-sm text-slate-800 truncate">${nextSub}</span>
-                ${nextTime ? `<span class="en text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded shrink-0">${nextTime}</span>` : ''}
+                <span class="arabic font-bold text-sm text-white truncate">${nextSub}</span>
+                ${nextTime ? `<span class="en text-[11px] font-extrabold text-amber-300 bg-amber-400/15 px-2 py-0.5 rounded shrink-0">${nextTime}</span>` : ''}
               </div>
             </div>
           </div>
@@ -665,7 +691,7 @@
       document.getElementById('tv-awards-grid').innerHTML = awards.map(a => {
         const hasWinner = a.winner && a.winner[a.valKey] > 0;
         return `
-          <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200/80 flex flex-col justify-between">
+          <div class="tv-card rounded-2xl overflow-hidden flex flex-col justify-between">
             <div class="bg-gradient-to-r ${a.gradient} p-3.5 text-white flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <span class="text-3xl bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center shadow-inner">${a.icon}</span>
@@ -674,18 +700,18 @@
                   <p class="en text-xs text-white/85 font-medium">${a.desc}</p>
                 </div>
               </div>
-              <span class="en text-sm lg:text-base font-black bg-white text-slate-900 px-3 py-1 rounded-xl shadow">
+              <span class="en text-sm lg:text-base font-black bg-amber-300 text-slate-950 px-3 py-1 rounded-xl shadow">
                 ${a.winner ? a.winner[a.valKey] : 0} pts
               </span>
             </div>
 
-            <div class="p-4 flex items-center justify-between bg-white">
+            <div class="p-4 flex items-center justify-between bg-[#0c2628]">
               <div>
-                <div class="en text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Leader</div>
-                <div class="en font-black text-lg lg:text-xl ${hasWinner ? 'text-slate-900' : 'text-slate-400'} truncate mt-0.5">
+                <div class="en text-[10px] font-bold uppercase tracking-wider text-teal-200/75">Current Leader</div>
+                <div class="en font-black text-lg lg:text-xl ${hasWinner ? 'text-amber-300' : 'text-slate-400'} truncate mt-0.5">
                   ${hasWinner ? a.winner.student.name : 'In Progress...'}
                 </div>
-                ${hasWinner ? `<div class="en text-xs font-bold text-teal-700 mt-0.5">${a.winner.student.id} • ${a.winner.student.batch} • ${a.winner.student.team}</div>` : ''}
+                ${hasWinner ? `<div class="en text-xs font-bold text-teal-200 mt-0.5">${a.winner.student.id} • ${a.winner.student.batch} • ${a.winner.student.team}</div>` : ''}
               </div>
             </div>
           </div>
@@ -711,27 +737,65 @@
         return { team: t, pts, compPts, clubPts, acadPts };
       }).sort((a, b) => b.pts - a.pts);
 
-      const rankBadges = [
-        "from-amber-400 to-yellow-500 text-slate-950",
-        "from-slate-300 to-slate-400 text-slate-900",
-        "from-amber-600 to-orange-700 text-white",
-        "from-teal-700 to-teal-800 text-white"
-      ];
+      // Render Vertical Column Bar Chart for 4 Teams
+      const ctx = document.getElementById('teamsBarChart');
+      if (ctx) {
+        if (teamsChartInstance) teamsChartInstance.destroy();
+        teamsChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: teamTotals.map(t => t.team),
+            datasets: [
+              {
+                label: 'Competitions',
+                data: teamTotals.map(t => t.compPts),
+                backgroundColor: '#f59e0b',
+                borderRadius: 6
+              },
+              {
+                label: 'Clubs',
+                data: teamTotals.map(t => t.clubPts),
+                backgroundColor: '#14b8a6',
+                borderRadius: 6
+              },
+              {
+                label: 'Academic & Projects',
+                data: teamTotals.map(t => t.acadPts),
+                backgroundColor: '#6366f1',
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#e2e8f0', font: { family: 'Poppins', weight: 'bold', size: 11 } }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#f8fafc', font: { family: 'Poppins', weight: 'bold', size: 11 } },
+                grid: { display: false }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#94a3b8', font: { family: 'Poppins', size: 11 } },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              }
+            }
+          }
+        });
+      }
 
-      document.getElementById('tv-teams-list').innerHTML = teamTotals.map((t, i) => `
-        <div class="bg-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-md border ${i === 0 ? 'border-amber-400 ring-2 ring-amber-300/50' : 'border-slate-200'}">
-          <div class="flex items-center gap-3.5">
-            <span class="en w-10 h-10 rounded-xl bg-gradient-to-br ${rankBadges[i]} font-black text-lg flex items-center justify-center shadow">
-              #${i + 1}
-            </span>
-            <div>
-              <div class="en font-extrabold text-base lg:text-lg text-slate-900">${t.team}</div>
-              <div class="en text-xs text-slate-500 font-semibold">
-                Comp: <b class="text-amber-700">${t.compPts}</b> • Club: <b class="text-indigo-700">${t.clubPts}</b> • Acad/Proj: <b class="text-rose-700">${t.acadPts}</b>
-              </div>
-            </div>
+      document.getElementById('tv-teams-mini').innerHTML = teamTotals.map((t, i) => `
+        <div class="bg-black/30 rounded-xl p-2.5 border ${i === 0 ? 'border-amber-400/60' : 'border-white/10'}">
+          <div class="flex items-center justify-between">
+            <span class="en text-xs font-black ${i === 0 ? 'text-amber-300' : 'text-teal-200'}">#${i + 1}</span>
+            <span class="en text-sm font-black text-white">${t.pts} pts</span>
           </div>
-          <div class="en text-xl lg:text-2xl font-black text-[#0f3d3e]">${t.pts} <span class="text-xs font-bold text-slate-500">pts</span></div>
+          <div class="en text-xs font-bold text-slate-200 truncate mt-0.5">${t.team}</div>
         </div>
       `).join('');
 
@@ -745,15 +809,15 @@
       document.getElementById('tv-quiz-winners').innerHTML = ['Senior', 'Junior', 'Sub Junior'].map(cat => {
         const top = w[cat];
         return `
-          <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200 flex flex-col justify-between">
+          <div class="tv-card rounded-2xl overflow-hidden flex flex-col justify-between">
             <div class="bg-gradient-to-r ${catColors[cat]} px-4 py-2 text-white flex items-center justify-between">
               <span class="en text-xs font-black uppercase tracking-wider">${cat} Category</span>
-              ${top ? `<span class="en text-xs font-black bg-white text-slate-900 px-2.5 py-0.5 rounded-full">${top.score} Marks</span>` : ''}
+              ${top ? `<span class="en text-xs font-black bg-amber-300 text-slate-950 px-2.5 py-0.5 rounded-full">${top.score} Marks</span>` : ''}
             </div>
             <div class="p-3.5">
               ${top
-                ? `<div class="en font-black text-base lg:text-lg text-slate-900 truncate">${top.name}</div>
-                   <div class="en text-xs text-slate-500 font-bold mt-0.5">${top.studentId} • ${top.team}</div>`
+                ? `<div class="en font-black text-base lg:text-lg text-white truncate">${top.name}</div>
+                   <div class="en text-xs text-teal-200 font-bold mt-0.5">${top.studentId} • ${top.team}</div>`
                 : `<div class="en text-sm text-slate-400 font-semibold">Awaiting this week's quiz scores...</div>`
               }
             </div>
@@ -762,9 +826,47 @@
       }).join('');
     }
 
-    function renderPendingAndNotesSlide() {
+    function renderTopStudentsAndPendingSlide() {
       const students = STATE.config.students || [];
+      const ranked = students.map(s => {
+        const sc = getStudentScores(s.id);
+        return { ...s, total: sc.daily + sc.comp + sc.club + sc.acad };
+      }).sort((a, b) => b.total - a.total).slice(0, 5);
 
+      const sCtx = document.getElementById('topStudentsChart');
+      if (sCtx) {
+        if (topStudentsChartInstance) topStudentsChartInstance.destroy();
+        topStudentsChartInstance = new Chart(sCtx, {
+          type: 'bar',
+          data: {
+            labels: ranked.map(s => s.name.split('.')[0].slice(0, 14)),
+            datasets: [{
+              label: 'Grand Total Points',
+              data: ranked.map(s => s.total),
+              backgroundColor: ['#fbbf24', '#2dd4bf', '#60a5fa', '#a78bfa', '#f472b6'],
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                ticks: { color: '#f8fafc', font: { family: 'Poppins', weight: 'bold', size: 10 } },
+                grid: { display: false }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#94a3b8', font: { family: 'Poppins', size: 11 } },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              }
+            }
+          }
+        });
+      }
+
+      // Pending Projects
       const pendingHtml = [];
       STATE.projects.slice().reverse().forEach(p => {
         let done = [];
@@ -773,14 +875,14 @@
         const notDone = targets.filter(s => !done.includes(s.id));
         if (notDone.length > 0) {
           pendingHtml.push(`
-            <div class="bg-rose-50/80 rounded-xl p-3 border border-rose-200">
+            <div class="bg-rose-500/15 rounded-xl p-2.5 border border-rose-400/30">
               <div class="flex items-center justify-between">
-                <span class="en font-extrabold text-sm text-rose-950">${p.Title} <span class="text-rose-600">(${p.TargetBatch})</span></span>
-                <span class="en text-xs font-extrabold bg-rose-600 text-white px-2.5 py-0.5 rounded-full">${notDone.length} Pending</span>
+                <span class="en font-extrabold text-xs lg:text-sm text-rose-200">${p.Title} (${p.TargetBatch})</span>
+                <span class="en text-[11px] font-extrabold bg-rose-500 text-white px-2 py-0.5 rounded-full">${notDone.length} Pending</span>
               </div>
-              <div class="flex flex-wrap gap-1.5 mt-2">
-                ${notDone.slice(0, 12).map(s => `<span class="en text-[11px] font-bold bg-white text-rose-800 border border-rose-200 px-2 py-0.5 rounded-md">${s.name}</span>`).join('')}
-                ${notDone.length > 12 ? `<span class="en text-[11px] text-rose-700 font-extrabold">+${notDone.length - 12} more</span>` : ''}
+              <div class="flex flex-wrap gap-1 mt-1.5">
+                ${notDone.slice(0, 10).map(s => `<span class="en text-[10px] font-bold bg-black/30 text-rose-100 px-2 py-0.5 rounded">${s.name}</span>`).join('')}
+                ${notDone.length > 10 ? `<span class="en text-[10px] text-rose-300 font-extrabold">+${notDone.length - 10} more</span>` : ''}
               </div>
             </div>
           `);
@@ -789,52 +891,53 @@
 
       document.getElementById('tv-pending-projects').innerHTML = pendingHtml.length
         ? pendingHtml.join('')
-        : `<div class="en text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 font-bold text-base py-8 text-center">✅ All Students Have Completed Their Projects!</div>`;
+        : `<div class="en text-emerald-300 font-bold text-sm py-6 text-center">✅ All Students Have Completed Their Projects!</div>`;
 
+      // Incomplete Notes
       const incNotes = STATE.evaluations
         .filter(e => e.NoteComplete === 'Incomplete' || e.NoteComplete === 'Pending')
         .slice().reverse();
 
       document.getElementById('tv-incomplete-notes').innerHTML = incNotes.length
-        ? incNotes.slice(0, 8).map(ev => {
+        ? incNotes.slice(0, 6).map(ev => {
             const st = students.find(s => s.id === ev.StudentID);
             return `
-              <div class="bg-amber-50/80 rounded-xl p-3 border border-amber-200 flex items-center justify-between gap-2">
+              <div class="bg-amber-500/15 rounded-xl p-2.5 border border-amber-400/30 flex items-center justify-between gap-2">
                 <div>
-                  <div class="en font-extrabold text-sm text-slate-900">${st ? st.name : ev.StudentID} <span class="text-xs text-teal-700">(${st ? st.batch : ''})</span></div>
-                  <div class="text-xs text-slate-600 mt-0.5">
-                    <span class="arabic font-bold text-sm text-amber-900">${ev.Kithab || 'General'}</span> • <span class="en">${ev.Remarks || 'Complete your class notes'}</span>
+                  <div class="en font-extrabold text-xs lg:text-sm text-white">${st ? st.name : ev.StudentID} <span class="text-xs text-teal-200">(${st ? st.batch : ''})</span></div>
+                  <div class="text-xs text-amber-200 mt-0.5">
+                    <span class="arabic font-bold text-sm">${ev.Kithab || 'General'}</span> • <span class="en">${ev.Remarks || 'Complete class notes'}</span>
                   </div>
                 </div>
-                <span class="en text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 shrink-0">${ev.NoteComplete}</span>
+                <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-400 text-slate-950 shrink-0">${ev.NoteComplete}</span>
               </div>
             `;
           }).join('')
-        : `<div class="en text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 font-bold text-base py-8 text-center">✅ All Class Notes Are Up to Date!</div>`;
+        : `<div class="en text-emerald-300 font-bold text-sm py-6 text-center">✅ All Class Notes Are Up to Date!</div>`;
     }
 
     function renderNoticesSlide() {
       const notices = STATE.notices.slice().reverse();
       document.getElementById('tv-notices-grid').innerHTML = notices.length
         ? notices.slice(0, 4).map(n => `
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-teal-200 flex flex-col justify-between">
+            <div class="tv-card rounded-2xl overflow-hidden flex flex-col justify-between">
               <div>
-                <div class="bg-gradient-to-r from-[#0f3d3e] to-teal-700 px-4 py-2.5 flex items-center justify-between text-white">
+                <div class="bg-gradient-to-r from-[#0f3d3e] to-teal-700 px-4 py-2.5 flex items-center justify-between text-white border-b border-white/10">
                   <span class="en text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">ANNOUNCEMENT</span>
                   <span class="en text-xs font-bold text-teal-100">${String(n.Date || '').split('T')[0]}</span>
                 </div>
                 <div class="p-4">
-                  <h3 class="en font-extrabold text-lg lg:text-xl text-slate-900">${n.Title}</h3>
-                  <p class="en text-sm lg:text-base text-slate-600 mt-2 leading-relaxed">${n.Message}</p>
+                  <h3 class="en font-extrabold text-lg lg:text-xl text-amber-300">${n.Title}</h3>
+                  <p class="en text-sm lg:text-base text-slate-100 mt-2 leading-relaxed">${n.Message}</p>
                 </div>
               </div>
-              <div class="en text-xs font-bold text-teal-800 bg-teal-50 px-4 py-2.5 border-t border-teal-100">
+              <div class="en text-xs font-bold text-teal-200 bg-black/30 px-4 py-2.5 border-t border-white/10">
                 Posted by: ${n.PostedBy || 'Ustad Desk'}
               </div>
             </div>
           `).join('')
-        : `<div class="col-span-2 bg-white rounded-2xl p-8 flex items-center justify-center border border-slate-200 shadow">
-             <p class="en text-xl text-slate-400 font-bold">No new announcements posted yet.</p>
+        : `<div class="col-span-2 tv-card rounded-2xl p-8 flex items-center justify-center">
+             <p class="en text-xl text-teal-200/70 font-bold">No new announcements posted yet.</p>
            </div>`;
     }
 
@@ -843,25 +946,21 @@
       const tickerEl = document.getElementById('ml-news-ticker');
       const items = [];
 
-      // Add latest notices from sheet
       if (STATE.notices && STATE.notices.length > 0) {
         STATE.notices.slice().reverse().slice(0, 4).forEach(n => {
           items.push(`📢 അറിയിപ്പ് (${n.PostedBy || 'Ustad'}): ${n.Title} — ${n.Message}`);
         });
       }
 
-      // Add monthly grand leader
       const awards = calculate6MonthlyAwards();
       const grand = awards[5];
       if (grand && grand.winner && grand.winner.grandTotal > 0) {
         items.push(`👑 ഈ മാസത്തെ ലീഡർ (Student of the Month): ${grand.winner.student.name} (${grand.winner.student.batch}) - ${grand.winner.grandTotal} പോയിന്റുകൾ`);
       }
 
-      // Add default institutional welcome
       items.push("🕌 ഇശാഅത്തുസ്സുന്ന ദഅ്‌വ ദർസ് പുതുപ്പാടം • എല്ലാവരും കൃത്യസമയത്ത് ക്ലാസ്സുകളിൽ ഹാജരാകുക, ദിനചര്യകൾ i-Con ആപ്പിൽ രേഖപ്പെടുത്തുക.");
 
-      const singlePass = items.map(txt => `<span class="mx-6">${txt}</span><span class="text-amber-600 mx-2">★</span>`).join('');
-      // Duplicate for seamless continuous scroll
+      const singlePass = items.map(txt => `<span class="mx-6">${txt}</span><span class="text-amber-400 mx-2">★</span>`).join('');
       tickerEl.innerHTML = singlePass + singlePass;
     }
 
