@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>i-Con Live TV Dashboard | Isha-athussunna Dawa Dars</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manjari:wght@400;700&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', 'Manjari', sans-serif;
+      background: radial-gradient(circle at top left, #0a2e2f 0%, #051617 55%, #020b0c 100%);
+      color: #f8fafc;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      user-select: none;
+    }
+    .ml { font-family: 'Manjari', sans-serif; }
+    .en { font-family: 'Poppins', sans-serif; }
+    .arabic { font-family: 'Amiri', serif; }
+
+    /* Slide Transitions */
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      pointer-events: none;
+      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Progress Bar Animation */
+    @keyframes progressFill {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+    .progress-anim {
+      animation: progressFill 15s linear infinite;
+    }
+
+    /* Glass Cards */
+    .glass {
+      background: rgba(255, 255, 255, 0.055);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+    }
+    .glass-teal {
+      background: linear-gradient(135deg, rgba(15, 61, 62, 0.75) 0%, rgba(11, 46, 47, 0.55) 100%);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+    }
+    .glass-gold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    /* Smooth Pulse Dot */
+    @keyframes pulseRing {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      70% { transform: scale(1.8); opacity: 0; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .live-dot::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 9999px;
+      background: #10b981;
+      animation: pulseRing 1.8s infinite;
+    }
+
+    /* Custom Thin Scrollbar if overflow occurs */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  </style>
+</head>
+<body class="flex flex-col justify-between p-4 lg:p-6">
+
+  <!-- TOP HEADER BAR -->
+  <header class="flex items-center justify-between glass rounded-2xl px-5 py-3 shrink-0 z-20 shadow-lg">
+    <div class="flex items-center gap-4">
+      <div id="tv-logo-box" class="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-md overflow-hidden shrink-0">
+        <svg viewBox="0 0 100 120" class="w-full h-full">
+          <path d="M50 5 C50 5 15 52 15 80 C15 100 31 115 50 115 C69 115 85 100 85 80 C85 52 50 5 50 5 Z M50 32 C62 50 68 65 68 78 C68 89 60 98 50 98 C40 98 32 89 32 78 C32 65 38 50 50 32 Z" fill="#0f3d3e"/>
+          <path d="M50 32 C42 48 42 68 50 85 C58 68 58 48 50 32 Z" fill="#1b5e60"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="en font-black text-xl lg:text-2xl tracking-tight text-white">ISHA-ATHUSSUNNA DAWA DARS</h1>
+          <span class="relative inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+            <span class="relative w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+            <span id="sync-status" class="en">LIVE</span>
+          </span>
+        </div>
+        <p class="ml text-teal-200/90 text-sm font-bold mt-0.5">പുതുപ്പാടം • i-Con സ്മാർട്ട് ലൈവ് ഡിസ്പ്ലേ ബോർഡ്</p>
+      </div>
+    </div>
+
+    <!-- Slide Indicators & Live 12-Hour Clock -->
+    <div class="flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-2" id="slide-dots"></div>
+
+      <div class="text-right">
+        <div id="tv-clock" class="en font-black text-2xl lg:text-3xl text-amber-300 tracking-wide leading-none">12:00:00 PM</div>
+        <div id="tv-date" class="ml text-xs lg:text-sm text-teal-100/80 font-bold mt-1">--</div>
+      </div>
+
+      <button onclick="toggleFullScreen()" title="Fullscreen (F11)" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition border border-white/15">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDESHOW STAGE -->
+  <main class="relative flex-1 my-3 overflow-hidden">
+
+    <!-- SLIDE 1: LIVE TIMETABLE (BATCH A - G ALL 7 CARDS) -->
+    <section id="slide-0" class="slide active">
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <div>
+          <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200 flex items-center gap-2">
+            <span>🕒</span> <span>തത്സമയ ക്ലാസ്സ് ടൈംടേബിൾ (Batch A – Batch G)</span>
+          </h2>
+        </div>
+        <span id="tt-day-badge" class="en text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 border border-teal-400/30">TODAY</span>
+      </div>
+      <div id="batches-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1"></div>
+    </section>
+
+    <!-- SLIDE 2: 6 MONTHLY CHAMPIONS -->
+    <section id="slide-1" class="slide">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h2 class="ml text-xl lg:text-2xl font-bold text-amber-300 flex items-center gap-2">
+          <span>🎖️</span> <span>ഈ മാസത്തെ 6 പ്രതിമാസ അവാർഡ് ജേതാക്കൾ (Live Auto-Rank)</span>
+        </h2>
+        <span id="awards-month-badge" class="en text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">CURRENT MONTH</span>
+      </div>
+      <div id="tv-awards-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 flex-1"></div>
+    </section>
+
+    <!-- SLIDE 3: 4 TEAMS STANDINGS + DAILY QUIZ WEEKLY CHAMPIONS -->
+    <section id="slide-2" class="slide">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+        <!-- Left 7 Cols: 4 Teams -->
+        <div class="lg:col-span-7 flex flex-col">
+          <div class="flex items-center justify-between mb-2.5 px-1">
+            <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200">🏆 4 ടീമുകളുടെ തത്സമയ പോയിന്റ് നില</h2>
+            <span class="ml text-xs font-bold text-slate-300 bg-white/10 px-2.5 py-1 rounded-full">മത്സരങ്ങൾ + ക്ലബ്ബ് + അക്കാദമിക്</span>
+          </div>
+          <div id="tv-teams-list" class="grid grid-cols-1 gap-3 flex-1"></div>
+        </div>
+
+        <!-- Right 5 Cols: Daily Quiz Weekly Champions -->
+        <div class="lg:col-span-5 flex flex-col">
+          <div class="flex items-center justify-between mb-2.5 px-1">
+            <h2 class="ml text-xl lg:text-2xl font-bold text-amber-300">📰 ഡെയിലി ക്വിസ് വിജയികൾ</h2>
+            <span class="en text-xs font-extrabold text-amber-200 bg-amber-500/20 px-2.5 py-1 rounded-full">THIS WEEK</span>
+          </div>
+          <div id="tv-quiz-winners" class="grid grid-cols-1 gap-3 flex-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: PENDING PROJECTS & INCOMPLETE NOTES ALERT -->
+    <section id="slide-3" class="slide">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
+        <!-- Pending Projects -->
+        <div class="glass rounded-2xl p-4 flex flex-col border border-rose-400/30">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+            <h2 class="ml text-lg lg:text-xl font-bold text-rose-300">📌 പ്രോജക്ട് സമർപ്പിക്കാൻ ബാക്കിയുള്ളവർ</h2>
+            <span class="en text-xs font-bold bg-rose-500/20 text-rose-200 px-2.5 py-0.5 rounded-full">PENDING PROJECTS</span>
+          </div>
+          <div id="tv-pending-projects" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+        </div>
+
+        <!-- Incomplete Notes -->
+        <div class="glass rounded-2xl p-4 flex flex-col border border-amber-400/30">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+            <h2 class="ml text-lg lg:text-xl font-bold text-amber-300">📝 നോട്ട് പൂർത്തിയാക്കാൻ ബാക്കിയുള്ളവർ</h2>
+            <span class="en text-xs font-bold bg-amber-500/20 text-amber-200 px-2.5 py-0.5 rounded-full">NOTE COMPLETION ALERT</span>
+          </div>
+          <div id="tv-incomplete-notes" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: LATEST NOTICES & ANNOUNCEMENTS -->
+    <section id="slide-4" class="slide">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h2 class="ml text-xl lg:text-2xl font-bold text-teal-200">📢 പ്രധാന അറിയിപ്പുകൾ (Notices & Announcements)</h2>
+        <span class="ml text-xs font-bold text-teal-200 bg-teal-500/20 px-3 py-1 rounded-full">ഉസ്താദുമാരുടെ ഡെസ്കിൽ നിന്ന്</span>
+      </div>
+      <div id="tv-notices-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"></div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM PROGRESS & STATUS BAR -->
+  <footer class="glass rounded-xl px-4 py-2 shrink-0 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-xs text-teal-100/80 ml font-bold shrink-0">
+      <span id="slide-title-footer">സ്ലൈഡ് 1 / 5 : തത്സമയ ടൈംടേബിൾ</span>
+    </div>
+    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+      <div id="slide-progress" class="h-full bg-gradient-to-r from-teal-400 to-amber-300 progress-anim"></div>
+    </div>
+    <div class="en text-[11px] text-slate-400 font-semibold shrink-0">
+      Auto-Sync: 60s • i-Con Smart TV
+    </div>
+  </footer>
+
+  <script>
+    // ================= API ENDPOINTS (CONNECTED TO YOUR EXISTING SHEET) =================
+    const ICON_API_URL = localStorage.getItem('icon_api_url') || 'https://script.google.com/macros/s/AKfycbw5BMn8o3wGZniXr0EgZ1x-PbDdOUV6JAtmcWJdBumFsUDoZtmKH9xwfwqe-Vo1XG1g/exec';
+    const QUIZ_API_URL = 'https://script.google.com/macros/s/AKfycbyUSKnyokpuCE8W9P4siZMUCT5h9LpcxtQGHtSxlrAx9TXW0sen3lgHXAGOE0E5QSudLg/exec';
+
+    const FALLBACK_STUDENTS = [
+      { id: "ST001", name: "MUHAMMED RAFI", category: "Senior", team: "Fatih's Force", batch: "Batch A" },
+      { id: "ST002", name: "AHAMMED KABEER", category: "Senior", team: "Cordoba Knights", batch: "Batch A" },
+      { id: "ST003", name: "LUKHMAN.VK", category: "Senior", team: "Fatih's Force", batch: "Batch B" },
+      { id: "ST004", name: "MUHAMMED.K", category: "Senior", team: "Samarqand Avengers", batch: "Batch B" },
+      { id: "ST005", name: "MUHAMMED FASALURAHMAN.P", category: "Senior", team: "Baghdad Gild", batch: "Batch B" },
+      { id: "ST006", name: "MUHAMMED FADHAL.P", category: "Junior", team: "Baghdad Gild", batch: "Batch C" },
+      { id: "ST007", name: "MUHAMMED SHAMMAS.N", category: "Junior", team: "Baghdad Gild", batch: "Batch C" },
+      { id: "ST008", name: "MUHAMMED MIDLAJ.N", category: "Junior", team: "Cordoba Knights", batch: "Batch C" },
+      { id: "ST009", name: "MUHAMMED RAEES.TK", category: "Junior", team: "Samarqand Avengers", batch: "Batch C" },
+      { id: "ST010", name: "MUHAMMED RABEEH.MT", category: "Junior", team: "Samarqand Avengers", batch: "Batch D" },
+      { id: "ST011", name: "MUHAMMED THWAYYIB", category: "Junior", team: "Cordoba Knights", batch: "Batch D" },
+      { id: "ST012", name: "MUHAMMED SINAN.NC", category: "Junior", team: "Samarqand Avengers", batch: "Batch D" },
+      { id: "ST013", name: "MUHAMMED MUSHAB", category: "Junior", team: "Fatih's Force", batch: "Batch D" },
+      { id: "ST014", name: "MASHHOORUL HAQ", category: "Junior", team: "Fatih's Force", batch: "Batch D" },
+      { id: "ST015", name: "MUHAMMED RAHOOF.P", category: "Junior", team: "Cordoba Knights", batch: "Batch E" },
+      { id: "ST016", name: "MUHAMMED SHIHAL.T", category: "Sub Junior", team: "Baghdad Gild", batch: "Batch E" },
+      { id: "ST017", name: "MUHAMMED SAEED.VK", category: "Sub Junior", team: "Samarqand Avengers", batch: "Batch E" },
+      { id: "ST018", name: "MUHAMMED HADHI.VP", category: "Sub Junior", team: "Samarqand Avengers", batch: "Batch E" },
+      { id: "ST019", name: "MUHAMMED SINAN.E", category: "Sub Junior", team: "Fatih's Force", batch: "Batch E" },
+      { id: "ST020", name: "MUHAMMED MARZOOQ.VK", category: "Sub Junior", team: "Cordoba Knights", batch: "Batch F" },
+      { id: "ST021", name: "MUHAMMED AZHARUDHEEN.N", category: "Sub Junior", team: "Baghdad Gild", batch: "Batch F" },
+      { id: "ST022", name: "MUHAMMED RAZI", category: "Sub Junior", team: "Baghdad Gild", batch: "Batch F" },
+      { id: "ST023", name: "MUHAMMED MISBAH.P", category: "Sub Junior", team: "Cordoba Knights", batch: "Batch F" },
+      { id: "ST024", name: "MUHHAMMED SINAN.EK", category: "Sub Junior", team: "Cordoba Knights", batch: "Batch F" },
+      { id: "ST025", name: "MUHAMMED RAFEEH", category: "Sub Junior", team: "Baghdad Gild", batch: "Batch F" },
+      { id: "ST026", name: "MUHAMMED NIZAMUDHEEN", category: "Sub Junior", team: "Cordoba Knights", batch: "Batch F" },
+      { id: "ST027", name: "MUHAMMED FUWAD", category: "Sub Junior", team: "Fatih's Force", batch: "Batch G" },
+      { id: "ST028", name: "MUHAMMED KHIDASH", category: "Sub Junior", team: "Cordoba Knights", batch: "Batch G" }
+    ];
+
+    const FALLBACK_TIMETABLES = {
+      "Batch A": {
+        slots: ["06:00-06:45", "06:50-07:30", "07:30-08:15", "09:30-10:15", "10:15-11:00", "11:00-11:45", "11:45-12:30", "14:15-15:00", "15:00-15:45"],
+        days: {
+          SUN: ["مشكاة", "مطالعة (Research)", "Read & Write", "الألفية", "Note Completion", "قطر الندى", "فتح المعين", "Language Hour", "حفظ"],
+          MON: ["حفظ", "Note Completion", "مطالعة (Research)", "الألفية", "Translation", "قطر الندى", "فتح المعين", "منطق", "مشكاة"],
+          TUE: ["مطالعة (Research)", "Read & Write", "Language Hour", "الألفية", "حفظ", "قطر الندى", "فتح المعين", "منطق", "مشكاة"],
+          WED: ["Note Completion", "مطالعة (Research)", "Read & Write", "الألفية", "حفظ", "مشكاة", "مشكاة", "تفسير", "Translation"],
+          THU: ["حفظ", "مطالعة (Research)", "Language Hour", "الألفية", "قطر الندى", "Read & Write", "مشكاة", "Translation", "نهج البلاغة"],
+          SAT: ["L-View", "حفظ", "Translation", "الألفية", "Read & Write", "مطالعة (Research)", "فتح المعين", "بلاغة", "Language Hour"]
+        }
+      },
+      "Batch B": {
+        slots: ["06:00-06:45", "06:50-07:30", "07:30-08:15", "09:30-10:15", "10:15-11:00", "11:00-11:45", "11:45-12:30", "14:15-15:00", "15:00-15:45"],
+        days: {
+          SUN: ["رياض الصالحين", "مطالعة (Research)", "Reading Writing", "الفقه", "Note Completion", "قطر الندى", "فتح المعين", "Language hr", "حفظ"],
+          MON: ["حفظ", "Note Completion", "مطالعة (Research)", "الفقه", "Translation", "قطر الندى", "فتح المعين", "منطق", "English"],
+          TUE: ["مطالعة (Research)", "Reading Writing", "Language hr", "الفقه", "حفظ", "قطر الندى", "فتح المعين", "منطق", "Translation"],
+          WED: ["Note Completion", "مطالعة (Research)", "Reading Writing", "الفقه", "قطر الندى", "حفظ", "فتح المعين", "بلاغة", "Translation"],
+          THU: ["حفظ", "مطالعة (Research)", "Language hr", "الفقه", "قطر الندى", "Reading Writing", "رياض الصالحين", "Translation", "نهج البلاغة"],
+          SAT: ["L-View", "حفظ", "Translation", "الفقه", "Reading Writing", "مطالعة (Research)", "فتح المعين", "بلاغة", "Language hr"]
+        }
+      },
+      "Batch C": {
+        slots: ["06:00-06:45", "06:50-07:30", "07:30-08:15", "09:00-09:45", "10:15-11:00", "11:00-11:45", "11:45-12:30", "14:15-15:00", "15:00-15:45"],
+        days: {
+          SUN: ["رياض الصالحين", "+2 Revision", "+2 Eduport Class", "Bath / Language", "خلاصة", "قطر الندى", "Note Completing", "Translation", "Hifz"],
+          MON: ["+2 Eduport", "مطالعة (Research)", "Reading-Writing", "Bath", "خلاصة", "قطر الندى", "إرشاد العباد", "+2 Eduport", "English"],
+          TUE: ["Note Completing", "+2 Eduport", "Reading-Writing", "Bath", "خلاصة", "قطر الندى", "إرشاد العباد", "أذكياء", "Language Learning"],
+          WED: ["+2 Eduport", "Hifz", "+2 Eduport", "Bath", "قطر الندى", "خلاصة", "Reading-Writing", "مطالعة (Research)", "Translation"],
+          THU: ["Hifz", "+2 Eduport", "Reading-Writing", "+2 Eduport", "Bath", "قطر الندى", "مطالعة (Research)", "Language Learning", "Translation"],
+          SAT: ["رياض الصالحين (L-View)", "Language Learning", "+2 Eduport", "Reading-Writing", "Bath", "قطر الندى", "+2 Eduport", "+2 خلاصة", "English"]
+        }
+      },
+      "Batch D": {
+        slots: ["06:00-06:45", "06:50-07:30", "07:30-08:15", "09:30-10:15", "10:15-11:00", "11:00-11:45", "11:45-12:30", "14:15-15:00", "15:00-15:45"],
+        days: {
+          SUN: ["رياض الصالحين", "+2 Revision", "Note Completion", "+2 Eduport Class", "قطر الندى", "خلاصة", "Language Learning", "حفظ", "Translation"],
+          MON: ["مطالعة (Research)", "+2 Eduport Class", "Reading & Writing", "+2 Eduport Class", "قطر الندى", "خلاصة", "إرشاد العباد", "Language Learning", "English"],
+          TUE: ["+2 Eduport Class", "Note Completion", "+2 Eduport", "مطالعة (Research)", "قطر الندى", "خلاصة", "إرشاد العباد", "Reading & Writing", "Language Learning"],
+          WED: ["حفظ", "+2 Eduport", "Note Completion", "+2 Eduport", "خلاصة", "قطر الندى", "Translation", "مطالعة (Research)", "Reading & Writing"],
+          THU: ["+2 Eduport", "حفظ", "+2 Eduport", "مطالعة (Research)", "Translation", "قطر الندى", "Reading & Writing", "Language Learning", "Translation"],
+          SAT: ["L-view", "+2 Eduport", "Language Learning", "+2 Eduport", "خلاصة", "قطر الندى / R&W", "مطالعة (Research)", "Translation", "Note Completion"]
+        }
+      },
+      "Batch E": {
+        slots: ["06:00-06:45", "06:50-07:30", "19:30-20:15", "20:15-21:00"],
+        days: {
+          SUN: ["فتح القيوم", "عوامل", "خلاصة", "إرشاد العباد"],
+          MON: ["فتح القيوم", "عوامل", "تقويم اللسان", "حفظ"],
+          TUE: ["فتح القيوم", "خلاصة", "عوامل", "Note Completion"],
+          WED: ["فتح القيوم", "إرشاد العباد", "تقويم اللسان", "حفظ"],
+          THU: ["فتح القيوم", "عوامل", "خلاصة", "مذاكرة"],
+          SAT: ["فتح القيوم", "تقويم اللسان", "إرشاد العباد", "Note Completion"]
+        }
+      },
+      "Batch F": {
+        slots: ["06:00-06:45", "06:50-07:30", "19:30-20:15", "20:15-21:00"],
+        days: {
+          SUN: ["فتح القيوم", "خلاصة", "تعليم المتعلم", "ميزان"],
+          MON: ["فتح القيوم", "أجناس", "خلاصة", "حفظ"],
+          TUE: ["فتح القيوم", "ميزان", "تعليم المتعلم", "Note Completion"],
+          WED: ["فتح القيوم", "أجناس", "خلاصة", "حفظ"],
+          THU: ["فتح القيوم", "ميزان", "تعليم المتعلم", "مذاكرة"],
+          SAT: ["فتح القيوم", "أجناس", "خلاصة", "Note Completion"]
+        }
+      },
+      "Batch G": {
+        slots: ["06:00-06:45", "06:50-07:30", "19:30-20:15", "20:15-21:00"],
+        days: {
+          SUN: ["فتح القيوم", "ميزان", "عشرة كتب", "حفظ"],
+          MON: ["فتح القيوم", "ميزان", "عشرة كتب", "Note Completion"],
+          TUE: ["فتح القيوم", "ميزان", "عشرة كتب", "حفظ"],
+          WED: ["فتح القيوم", "ميزان", "عشرة كتب", "مذاكرة"],
+          THU: ["فتح القيوم", "ميزان", "عشرة كتب", "حفظ"],
+          SAT: ["فتح القيوم", "ميزان", "عشرة كتب", "Note Completion"]
+        }
+      }
+    };
+
+    let STATE = {
+      config: {
+        darsLogo: "",
+        teams: ["Fatih's Force", "Cordoba Knights", "Samarqand Avengers", "Baghdad Gild"],
+        students: FALLBACK_STUDENTS,
+        timetables: FALLBACK_TIMETABLES
+      },
+      dailyLogs: [],
+      competitions: [],
+      clubPoints: [],
+      projects: [],
+      evaluations: [],
+      notices: [],
+      quizWinners: {}
+    };
+
+    const SLIDE_NAMES = [
+      "സ്ലൈഡ് 1 / 5 : തത്സമയ ക്ലാസ്സ് ടൈംടേബിൾ (Batch A – G)",
+      "സ്ലൈഡ് 2 / 5 : 6 പ്രതിമാസ അവാർഡ് ജേതാക്കൾ",
+      "സ്ലൈഡ് 3 / 5 : 4 ടീമുകളുടെ പോയിന്റ് നില & ക്വിസ് വിജയികൾ",
+      "സ്ലൈഡ് 4 / 5 : പ്രോജക്ട് & നോട്ട് പൂർത്തിയാക്കാൻ ബാക്കിയുള്ളവർ",
+      "സ്ലൈഡ് 5 / 5 : പ്രധാന അറിയിപ്പുകൾ (Notices)"
+    ];
+
+    let currentSlide = 0;
+    const totalSlides = 5;
+    const SLIDE_DURATION = 15000; // 15 seconds per slide
+
+    // ================= 12-HOUR CLOCK & DATE =================
+    function format12Hour(hhmm) {
+      if (!hhmm || !hhmm.includes(':')) return hhmm;
+      let [h, m] = hhmm.split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${String(m).padStart(2, '0')} ${ampm}`;
+    }
+
+    function formatSlot12Hour(slotStr) {
+      if (!slotStr || !slotStr.includes('-')) return slotStr;
+      const [s, e] = slotStr.split('-');
+      return `${format12Hour(s)} - ${format12Hour(e)}`;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('tv-clock').textContent = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      const mlDays = ["ഞായർ", "തിങ്കൾ", "ചൊവ്വ", "ബുധൻ", "വ്യാഴം", "വെള്ളി", "ശനി"];
+      const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      document.getElementById('tv-date').textContent = `${mlDays[now.getDay()]} • ${dateStr}`;
+    }
+
+    // ================= SLIDESHOW CONTROLLER =================
+    function buildSlideDots() {
+      const dotsEl = document.getElementById('slide-dots');
+      dotsEl.innerHTML = Array.from({ length: totalSlides }).map((_, i) => `
+        <button onclick="goToSlide(${i})" class="h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-amber-300' : 'w-2.5 bg-white/25 hover:bg-white/50'}"></button>
+      `).join('');
+    }
+
+    function goToSlide(idx) {
+      document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+      currentSlide = idx % totalSlides;
+      document.getElementById(`slide-${currentSlide}`).classList.add('active');
+      document.getElementById('slide-title-footer').textContent = SLIDE_NAMES[currentSlide];
+      buildSlideDots();
+
+      // Restart progress bar animation cleanly
+      const prog = document.getElementById('slide-progress');
+      prog.classList.remove('progress-anim');
+      void prog.offsetWidth;
+      prog.classList.add('progress-anim');
+    }
+
+    // ================= DATA SYNC FROM GOOGLE SHEETS =================
+    async function fetchAllData() {
+      const statusEl = document.getElementById('sync-status');
+      statusEl.textContent = 'SYNCING...';
+      try {
+        const res = await fetch(`${ICON_API_URL}?action=getAll&t=${Date.now()}`);
+        const json = await res.json();
+        if (json.status === 'success' && json.data) {
+          if (json.data.config) STATE.config = { ...STATE.config, ...json.data.config };
+          STATE.dailyLogs = json.data.dailyLogs || [];
+          STATE.competitions = json.data.competitions || [];
+          STATE.clubPoints = json.data.clubPoints || [];
+          STATE.projects = json.data.projects || [];
+          STATE.evaluations = json.data.evaluations || [];
+          STATE.notices = json.data.notices || [];
+          statusEl.textContent = 'LIVE SYNCED';
+        }
+      } catch (e) {
+        statusEl.textContent = 'CACHED MODE';
+      }
+
+      try {
+        const qRes = await fetch(`${QUIZ_API_URL}?action=getState&t=${Date.now()}`);
+        const qData = await qRes.json();
+        if (qData && qData.status === 'ok' && Array.isArray(qData.history)) {
+          const now = new Date();
+          const day = now.getDay();
+          const diffToSat = day === 6 ? 0 : day + 1;
+          const sat = new Date(now);
+          sat.setDate(now.getDate() - diffToSat);
+          const weekStart = `${sat.getFullYear()}-${String(sat.getMonth() + 1).padStart(2, '0')}-${String(sat.getDate()).padStart(2, '0')}`;
+
+          const winners = {};
+          ['Senior', 'Junior', 'Sub Junior'].forEach(cat => {
+            const totals = new Map();
+            qData.history.forEach(h => {
+              if (h.category === cat && h.mode !== 'UNLOCKED' && h.mode !== 'IN_PROGRESS' && String(h.dateStr) >= weekStart) {
+                const sid = String(h.studentId).toUpperCase();
+                if (!totals.has(sid)) {
+                  totals.set(sid, { studentId: sid, name: h.name, team: h.team, score: 0, time: 0 });
+                }
+                const rec = totals.get(sid);
+                rec.score += Number(h.score) || 0;
+                rec.time += Number(h.timeTakenSeconds) || 0;
+              }
+            });
+            const ranked = Array.from(totals.values()).sort((a, b) => (b.score - a.score) || (a.time - b.time));
+            winners[cat] = ranked[0] || null;
+          });
+          STATE.quizWinners = winners;
+        }
+      } catch (e) {}
+
+      renderDashboard();
+    }
+
+    // ================= SCORE & AWARD CALCULATIONS (EXACT i-Con FORMULA) =================
+    function getStudentScores(studentId) {
+      const curMonth = new Date().toISOString().slice(0, 7);
+      const daily = STATE.dailyLogs
+        .filter(l => l.StudentID === studentId && String(l.Date).startsWith(curMonth))
+        .reduce((s, r) => s + (Number(r.Points) || 0), 0);
+      const comp = STATE.competitions
+        .filter(c => c.StudentID === studentId)
+        .reduce((s, r) => s + (Number(r.Points) || 0), 0);
+      const club = STATE.clubPoints
+        .filter(c => c.StudentID === studentId)
+        .reduce((s, r) => s + (Number(r.Points) || 0), 0);
+      const evalPts = STATE.evaluations
+        .filter(e => e.StudentID === studentId)
+        .reduce((s, r) => s + (Number(r.Points) || 0), 0);
+      const projPts = STATE.projects.reduce((s, p) => {
+        let done = [];
+        try { done = JSON.parse(p.CompletedByJSON || '[]'); } catch(e) {}
+        return done.includes(studentId) ? s + (Number(p.Points) || 0) : s;
+      }, 0);
+      return { daily, comp, club, acad: evalPts + projPts };
+    }
+
+    function calculate6MonthlyAwards() {
+      const curMonth = new Date().toISOString().slice(0, 7);
+      const stats = (STATE.config.students || []).map(st => {
+        const logs = STATE.dailyLogs.filter(l => l.StudentID === st.id && String(l.Date).startsWith(curMonth));
+        let spiritual = 0, scholar = 0, reader = 0, consistency = 0;
+        const habitKeys = ["tahajjud", "duha", "asmaulBadr", "asmaulHusna", "waqia", "newspaper", "witr", "haddad", "diary"];
+        logs.forEach(l => {
+          let d = {};
+          try { d = JSON.parse(l.DetailsJSON || '{}'); } catch(e) {}
+          spiritual += (Number(d.quran) || 0) + Math.floor((Number(d.swalath) || 0) / 15);
+          scholar += (Number(d.muthalaa) || 0) + (Number(d.wordStudy) || 0);
+          reader += (Number(d.reading) || 0);
+          habitKeys.forEach(k => { if (d[k]) consistency += 1; });
+        });
+        const evalPts = STATE.evaluations.filter(e => e.StudentID === st.id && String(e.Date).startsWith(curMonth)).reduce((s, r) => s + (Number(r.Points) || 0), 0);
+        const sc = getStudentScores(st.id);
+        const grandTotal = sc.daily + sc.comp + sc.club + sc.acad;
+        return { student: st, spiritual, scholar, reader, consistency, conduct: evalPts, grandTotal };
+      });
+
+      const topBy = (key) => [...stats].sort((a, b) => b[key] - a[key])[0];
+      return [
+        { icon: "🕌", titleMl: "ടോപ്പ് സ്പിരിച്വൽ അവാർഡ്", titleEn: "Top Spiritual Award", desc: "ഖുർആൻ + സ്വലാത്ത്", winner: topBy('spiritual'), valKey: 'spiritual' },
+        { icon: "📖", titleMl: "സ്കോളർ ഓഫ് ദി മന്ത്", titleEn: "Scholar of the Month", desc: "മുത്വാലഅ + വേർഡ് സ്റ്റഡി", winner: topBy('scholar'), valKey: 'scholar' },
+        { icon: "📚", titleMl: "സ്റ്റാർ റീഡർ അവാർഡ്", titleEn: "Star Reader", desc: "എക്സ്ട്രാ റീഡിംഗ് പേജുകൾ", winner: topBy('reader'), valKey: 'reader' },
+        { icon: "⏰", titleMl: "കൺസിസ്റ്റൻസി ചാമ്പ്യൻ", titleEn: "Consistency Champion", desc: "ദിക്റുകളും ദിനചര്യകളും", winner: topBy('consistency'), valKey: 'consistency' },
+        { icon: "🌟", titleMl: "ബെസ്റ്റ് കണ്ടക്ട് അവാർഡ്", titleEn: "Best Conduct", desc: "സ്വഭാവം & ഉസ്താദ് ഇവാലുവേഷൻ", winner: topBy('conduct'), valKey: 'conduct' },
+        { icon: "👑", titleMl: "സ്റ്റുഡന്റ് ഓഫ് ദി മന്ത്", titleEn: "Student of the Month", desc: "മൊത്തം ഗ്രാൻഡ് ടോട്ടൽ", winner: topBy('grandTotal'), valKey: 'grandTotal' }
+      ];
+    }
+
+    // ================= RENDER ALL SLIDES =================
+    function renderDashboard() {
+      // Logo
+      if (STATE.config.darsLogo) {
+        document.getElementById('tv-logo-box').innerHTML = `<img src="${STATE.config.darsLogo}" class="w-full h-full object-contain rounded-lg" />`;
+      }
+
+      renderTimetableSlide();
+      renderAwardsSlide();
+      renderTeamsAndQuizSlide();
+      renderPendingAndNotesSlide();
+      renderNoticesSlide();
+    }
+
+    function renderTimetableSlide() {
+      const now = new Date();
+      const dayKeys = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY (HOLIDAY)", "SATURDAY"];
+      const day = dayKeys[now.getDay()];
+      document.getElementById('tt-day-badge').textContent = dayNames[now.getDay()];
+
+      const curMin = now.getHours() * 60 + now.getMinutes();
+      const batches = ["Batch A", "Batch B", "Batch C", "Batch D", "Batch E", "Batch F", "Batch G"];
+
+      document.getElementById('batches-grid').innerHTML = batches.map(b => {
+        const tt = (STATE.config.timetables && STATE.config.timetables[b]) || FALLBACK_TIMETABLES[b];
+        let nowSub = "സ്വയം പഠനം (Self Study)";
+        let nowTime = "";
+        let nextSub = "വിശ്രമം / അടുത്ത സെഷൻ";
+        let nextTime = "";
+        let isLiveClass = false;
+
+        if (day === "FRI" || !tt || !tt.days[day]) {
+          nowSub = "ജുമുഅ അവധി (Jumu'ah)";
+          nextSub = "ശനിയാഴ്ച ക്ലാസ്സ്";
+        } else {
+          nextSub = tt.days[day][0];
+          nextTime = format12Hour(tt.slots[0].split('-')[0]);
+
+          for (let i = 0; i < tt.slots.length; i++) {
+            const [startStr, endStr] = tt.slots[i].split('-');
+            const [sh, sm] = startStr.split(':').map(Number);
+            const [eh, em] = endStr.split(':').map(Number);
+            const sMin = sh * 60 + sm, eMin = eh * 60 + em;
+
+            if (curMin >= sMin && curMin <= eMin) {
+              isLiveClass = true;
+              nowSub = tt.days[day][i];
+              nowTime = formatSlot12Hour(tt.slots[i]);
+              if (tt.days[day][i + 1]) {
+                nextSub = tt.days[day][i + 1];
+                nextTime = format12Hour(tt.slots[i + 1].split('-')[0]);
+              } else {
+                nextSub = "ഇന്നത്തെ ക്ലാസ്സുകൾ അവസാനിച്ചു";
+                nextTime = "";
+              }
+              break;
+            } else if (curMin < sMin) {
+              nowSub = "ഇടവേള / തയ്യാറെടുപ്പ്";
+              nextSub = tt.days[day][i];
+              nextTime = format12Hour(startStr);
+              break;
+            }
+          }
+          // After last slot of the day
+          const lastEnd = tt.slots[tt.slots.length - 1].split('-')[1];
+          const [leh, lem] = lastEnd.split(':').map(Number);
+          if (curMin > (leh * 60 + lem)) {
+            nowSub = "രാത്രികാല മുത്വാലഅ / ഹിഫ്ള്";
+            nextSub = "നാളത്തെ പ്രഭാത ക്ലാസ്സ്";
+            nextTime = "6:00 AM";
+          }
+        }
+
+        return `
+          <div class="${isLiveClass ? 'glass-teal' : 'glass'} rounded-2xl p-3.5 flex flex-col justify-between shadow-md">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+              <span class="en font-black text-base lg:text-lg text-white">${b}</span>
+              <span class="en text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isLiveClass ? 'bg-emerald-400 text-slate-950' : 'bg-white/10 text-teal-200'}">
+                ${isLiveClass ? 'ONGOING' : 'SCHEDULE'}
+              </span>
+            </div>
+
+            <div class="my-2">
+              <div class="ml text-[11px] text-teal-200/80 font-bold">ഇപ്പോൾ നടക്കുന്നത് (Now):</div>
+              <div class="arabic font-bold text-lg lg:text-xl text-amber-300 leading-snug truncate mt-0.5">${nowSub}</div>
+              ${nowTime ? `<div class="en text-[11px] font-bold text-emerald-300 mt-0.5">${nowTime}</div>` : ''}
+            </div>
+
+            <div class="bg-black/25 rounded-xl p-2 border border-white/5">
+              <div class="ml text-[10px] text-slate-300 font-bold">അടുത്ത സബ്ജക്ട് (Next):</div>
+              <div class="flex items-center justify-between gap-1 mt-0.5">
+                <span class="arabic font-bold text-sm text-white truncate">${nextSub}</span>
+                ${nextTime ? `<span class="en text-[10px] font-extrabold text-amber-200 shrink-0">${nextTime}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAwardsSlide() {
+      const monthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      document.getElementById('awards-month-badge').textContent = monthLabel;
+      const awards = calculate6MonthlyAwards();
+
+      document.getElementById('tv-awards-grid').innerHTML = awards.map((a, idx) => {
+        const hasWinner = a.winner && a.winner[a.valKey] > 0;
+        const isGrand = idx === 5;
+        return `
+          <div class="${isGrand ? 'glass-gold' : 'glass'} rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl lg:text-4xl">${a.icon}</span>
+                <div>
+                  <h3 class="ml font-bold text-base lg:text-lg text-white leading-tight">${a.titleMl}</h3>
+                  <p class="en text-[11px] font-semibold text-teal-200/80">${a.titleEn} • <span class="ml">${a.desc}</span></p>
+                </div>
+              </div>
+              <span class="en text-sm lg:text-base font-black px-3 py-1 rounded-xl ${isGrand ? 'bg-amber-400 text-slate-950' : 'bg-teal-500/25 text-teal-200'}">
+                ${a.winner ? a.winner[a.valKey] : 0} pts
+              </span>
+            </div>
+
+            <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <div class="en font-black text-base lg:text-lg ${hasWinner ? 'text-amber-300' : 'text-slate-400'} truncate">
+                  ${hasWinner ? a.winner.student.name : 'മത്സരം പുരോഗമിക്കുന്നു...'}
+                </div>
+                ${hasWinner ? `<div class="en text-xs font-bold text-slate-300">${a.winner.student.id} • ${a.winner.student.batch} • ${a.winner.student.team}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTeamsAndQuizSlide() {
+      const students = STATE.config.students || [];
+      const rankedStudents = students.map(s => ({ ...s, scores: getStudentScores(s.id) }));
+      const teams = STATE.config.teams || ["Fatih's Force", "Cordoba Knights", "Samarqand Avengers", "Baghdad Gild"];
+
+      const teamTotals = teams.map(t => {
+        const members = rankedStudents.filter(s => s.team === t);
+        const indComp = members.reduce((sum, s) => sum + s.scores.comp, 0);
+        const directTeamComp = STATE.competitions
+          .filter(c => c.StudentID === `TEAM:${t}`)
+          .reduce((sum, r) => sum + (Number(r.Points) || 0), 0);
+        const compPts = indComp + directTeamComp;
+        const clubPts = members.reduce((sum, s) => sum + s.scores.club, 0);
+        const acadPts = members.reduce((sum, s) => sum + s.scores.acad, 0);
+        const pts = compPts + clubPts + acadPts;
+        return { team: t, pts, compPts, clubPts, acadPts };
+      }).sort((a, b) => b.pts - a.pts);
+
+      document.getElementById('tv-teams-list').innerHTML = teamTotals.map((t, i) => `
+        <div class="${i === 0 ? 'glass-gold' : 'glass'} rounded-2xl px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <span class="en w-9 h-9 rounded-xl ${i === 0 ? 'bg-amber-400 text-slate-950' : 'bg-teal-500/30 text-white'} font-black text-lg flex items-center justify-center">
+              #${i + 1}
+            </span>
+            <div>
+              <div class="en font-extrabold text-base lg:text-lg text-white">${t.team}</div>
+              <div class="en text-xs text-slate-300 font-semibold">
+                Comp: <b class="text-amber-300">${t.compPts}</b> • Club: <b class="text-teal-300">${t.clubPts}</b> • Acad/Proj: <b class="text-rose-300">${t.acadPts}</b>
+              </div>
+            </div>
+          </div>
+          <div class="en text-xl lg:text-2xl font-black ${i === 0 ? 'text-amber-300' : 'text-teal-200'}">${t.pts} <span class="text-xs font-bold">pts</span></div>
+        </div>
+      `).join('');
+
+      const w = STATE.quizWinners || {};
+      document.getElementById('tv-quiz-winners').innerHTML = ['Senior', 'Junior', 'Sub Junior'].map(cat => {
+        const top = w[cat];
+        return `
+          <div class="glass-teal rounded-2xl p-3.5 flex flex-col justify-center">
+            <div class="flex items-center justify-between">
+              <span class="en text-xs font-black uppercase tracking-wider text-amber-300">${cat} Category</span>
+              ${top ? `<span class="en text-xs font-black bg-emerald-400 text-slate-950 px-2.5 py-0.5 rounded-full">${top.score} Marks</span>` : ''}
+            </div>
+            ${top
+              ? `<div class="en font-black text-base lg:text-lg text-white mt-1 truncate">${top.name}</div>
+                 <div class="en text-xs text-teal-200 font-semibold">${top.studentId} • ${top.team}</div>`
+              : `<div class="ml text-sm text-slate-300 mt-1">ഫലങ്ങൾ കാത്തിരിക്കുന്നു...</div>`
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPendingAndNotesSlide() {
+      const students = STATE.config.students || [];
+
+      // 1. Pending Projects
+      const pendingHtml = [];
+      STATE.projects.slice().reverse().forEach(p => {
+        let done = [];
+        try { done = JSON.parse(p.CompletedByJSON || '[]'); } catch(e) {}
+        const targets = students.filter(s => p.TargetBatch === 'ALL' || s.category === p.TargetBatch || s.batch === p.TargetBatch);
+        const notDone = targets.filter(s => !done.includes(s.id));
+        if (notDone.length > 0) {
+          pendingHtml.push(`
+            <div class="bg-white/5 rounded-xl p-3 border border-rose-400/20">
+              <div class="flex items-center justify-between">
+                <span class="en font-extrabold text-sm text-rose-200">${p.Title} (${p.TargetBatch})</span>
+                <span class="en text-xs font-bold text-rose-300">${notDone.length} Pending</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                ${notDone.slice(0, 12).map(s => `<span class="en text-[11px] font-bold bg-rose-500/20 text-rose-100 px-2 py-0.5 rounded-md">${s.name}</span>`).join('')}
+                ${notDone.length > 12 ? `<span class="en text-[11px] text-rose-300 font-bold">+${notDone.length - 12} more</span>` : ''}
+              </div>
+            </div>
+          `);
+        }
+      });
+
+      document.getElementById('tv-pending-projects').innerHTML = pendingHtml.length
+        ? pendingHtml.join('')
+        : `<div class="ml text-emerald-300 font-bold text-base py-6 text-center">✅ എല്ലാ കുട്ടികളും പ്രോജക്റ്റുകൾ പൂർത്തിയാക്കിയിരിക്കുന്നു!</div>`;
+
+      // 2. Incomplete / Pending Notes from Ustad Evaluations
+      const incNotes = STATE.evaluations
+        .filter(e => e.NoteComplete === 'Incomplete' || e.NoteComplete === 'Pending')
+        .slice().reverse();
+
+      document.getElementById('tv-incomplete-notes').innerHTML = incNotes.length
+        ? incNotes.slice(0, 8).map(ev => {
+            const st = students.find(s => s.id === ev.StudentID);
+            return `
+              <div class="bg-white/5 rounded-xl p-3 border border-amber-400/20 flex items-center justify-between gap-2">
+                <div>
+                  <div class="en font-extrabold text-sm text-white">${st ? st.name : ev.StudentID} <span class="text-xs text-teal-200">(${st ? st.batch : ''})</span></div>
+                  <div class="text-xs text-amber-200 mt-0.5">
+                    <span class="arabic font-bold text-sm">${ev.Kithab || 'General'}</span> • <span class="ml">${ev.Remarks || 'നോട്ട് പൂർത്തിയാക്കുക'}</span>
+                  </div>
+                </div>
+                <span class="en text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-500/25 text-amber-200 shrink-0">${ev.NoteComplete}</span>
+              </div>
+            `;
+          }).join('')
+        : `<div class="ml text-emerald-300 font-bold text-base py-6 text-center">✅ നോട്ട് പൂർത്തിയാക്കാൻ ആരും ബാക്കിയില്ല!</div>`;
+    }
+
+    function renderNoticesSlide() {
+      const notices = STATE.notices.slice().reverse();
+      document.getElementById('tv-notices-grid').innerHTML = notices.length
+        ? notices.slice(0, 4).map(n => `
+            <div class="glass-teal rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <span class="en text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">NOTICE</span>
+                  <span class="en text-xs font-bold text-teal-200">${String(n.Date || '').split('T')[0]}</span>
+                </div>
+                <h3 class="en font-extrabold text-lg lg:text-xl text-white">${n.Title}</h3>
+                <p class="en text-sm lg:text-base text-slate-200 mt-2 leading-relaxed">${n.Message}</p>
+              </div>
+              <div class="en text-xs font-bold text-amber-300 mt-3 pt-2 border-t border-white/10">
+                Posted by: ${n.PostedBy || 'Ustad Desk'}
+              </div>
+            </div>
+          `).join('')
+        : `<div class="col-span-2 glass rounded-2xl p-8 flex items-center justify-center">
+             <p class="ml text-xl text-teal-200 font-bold">നിലവിൽ പുതിയ അറിയിപ്പുകളൊന്നും ഇല്ല.</p>
+           </div>`;
+    }
+
+    // ================= FULLSCREEN & WAKE LOCK =================
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          await navigator.wakeLock.request('screen');
+        }
+      } catch (e) {}
+    }
+
+    // ================= BOOTSTRAP =================
+    (function initTvDashboard() {
+      buildSlideDots();
+      updateClock();
+      renderDashboard();
+      fetchAllData();
+      requestWakeLock();
+
+      setInterval(updateClock, 1000);
+      setInterval(() => goToSlide(currentSlide + 1), SLIDE_DURATION);
+      setInterval(renderTimetableSlide, 30000); // Update current/next class every 30s
+      setInterval(fetchAllData, 60000);       // Sync Google Sheet every 60s
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') requestWakeLock();
+      });
+    })();
+  </script>
+</body>
+</html>
